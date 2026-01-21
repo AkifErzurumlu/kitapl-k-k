@@ -1,9 +1,71 @@
-<%- include('layout') %>
-<div class="p-5 mb-4 bg-white rounded-3 border">
-    <div class="container-fluid py-5 text-center">
-        <h1 class="display-5 fw-bold">Hoş Geldin!</h1>
-        <p class="fs-4">Şu an kütüphanende tam <strong><%= totalBooks %></strong> kitap bulunuyor.</p>
-        <a href="/books" class="btn btn-primary btn-lg">Kitapları Görüntüle</a>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kütüphanem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/books">📚 Akif'in Kütüphanesi</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Çıkış Yap</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="p-5 mb-4 bg-white rounded-3 shadow-sm text-center">
+            <h1 class="display-5 fw-bold">Hoş Geldin!</h1>
+            <p class="fs-4">Kütüphanende şu an <strong><%= totalBooks %></strong> kitap var.</p>
+            <% if (totalBooks === 0) { %>
+                <div class="alert alert-warning">
+                    🚀 Listen bomboş! Aşağıdan hemen ilk kitabını ekle.
+                </div>
+            <% } %>
+        </div>
+
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Yeni Kitap Ekle</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/add-book" method="POST" class="d-flex gap-2">
+                            <input type="text" name="title" class="form-control" placeholder="Kitap Adı" required>
+                            <input type="text" name="author" class="form-control" placeholder="Yazar Adı" required>
+                            <button type="submit" class="btn btn-success">Ekle</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <% books.forEach(book => { %>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary"><%= book.title %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
+                            <p class="card-text">
+                                <span class="badge bg-<%= book.isRead ? 'success' : 'secondary' %>">
+                                    <%= book.isRead ? 'Okundu' : 'Okunmadı' %>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <form action="/delete-book/<%= book._id %>" method="POST">
+                                <button type="submit" class="btn btn-outline-danger w-100 btn-sm">Sil</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
     </div>
-</div>
-</body></html>
+
+</body>
+</html>
