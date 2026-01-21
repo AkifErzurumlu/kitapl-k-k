@@ -1,47 +1,46 @@
 <%- include('layout') %>
 
-<div class="container text-center">
-    <h2 class="text-white fw-bold mb-4">✨ Senin İçin Seçtiklerimiz</h2>
-    <p class="text-white opacity-75 mb-5">Mevcut kütüphanene baktık ve bunları seveceğini düşündük.</p>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10 text-center">
+        <h2 class="fw-bold text-white mb-3">✨ Senin İçin Seçtiklerimiz</h2>
+        <p class="text-white opacity-75 mb-5">
+            Kütüphanendeki kitaplara göre bunları da sevebilirsin.
+        </p>
 
-    <div class="row justify-content-center">
-        <% if (suggestions.length === 0) { %>
-            <div class="col-md-6">
-                <div class="alert alert-success p-4">
-                    <h4 class="alert-heading">Tebrikler! 🎓</h4>
-                    <p>Bizim öneri havuzumuzdaki tüm kitapları zaten okumuşsun veya kütüphanene eklemişsin. Sen gerçek bir kitap kurdusun!</p>
-                </div>
-            </div>
-        <% } else { %>
-            <% suggestions.forEach(book => { %>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-0 shadow-lg" style="background: rgba(255,255,255,0.95);">
-                        <div class="card-body p-4 d-flex flex-column justify-content-center">
-                            <span class="badge bg-warning text-dark mb-3 w-50 mx-auto">Öneri</span>
-                            <h4 class="card-title fw-bold text-primary"><%= book.title %></h4>
-                            <p class="card-text text-muted fs-5"><%= book.author %></p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pb-4">
-                            <form action="/add" method="POST">
-                                <input type="hidden" name="title" value="<%= book.title %>">
-                                <input type="hidden" name="author" value="<%= book.author %>">
-                                <button type="submit" class="btn btn-success w-100">
-                                    + Kütüphaneme Ekle
-                                </button>
-                            </form>
-                        </div>
+        <div class="row">
+            <% if (suggestions.length === 0) { %>
+                <div class="col-12">
+                    <div class="alert alert-light opacity-75">
+                        Şu an önerilecek yeni bir kitap bulamadık.
                     </div>
                 </div>
-            <% }) %>
-        <% } %>
-    </div>
+            <% } else { %>
+                <% suggestions.forEach(book => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-0 shadow-lg">
+                            <div class="card-body p-4 d-flex flex-column">
+                                <span class="badge bg-warning text-dark align-self-center mb-3"><%= book.type %></span>
+                                <h4 class="card-title fw-bold text-primary"><%= book.title %></h4>
+                                <p class="card-text text-muted"><%= book.author %></p>
+                                <div class="mt-auto">
+                                    <form action="/add-book" method="POST">
+                                        <input type="hidden" name="title" value="<%= book.title %>">
+                                        <input type="hidden" name="author" value="<%= book.author %>">
+                                        <button type="submit" class="btn btn-success w-100">+ Ekle</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
 
-    <div class="mt-5">
-        <a href="/recommend" class="btn btn-outline-light btn-lg px-5">🔄 Başka Öneriler Getir</a>
-        <br><br>
-        <a href="/books" class="text-white-50 text-decoration-none">← Ana Ekrana Dön</a>
+        <div class="mt-4 pb-5">
+            <a href="/recommend" class="btn btn-outline-light px-4 me-2">🔄 Yenile</a>
+            <a href="/books" class="btn btn-link text-white text-decoration-none">Geri Dön</a>
+        </div>
     </div>
 </div>
 
-</div> </body>
-</html>
+</div> </body> </html>
