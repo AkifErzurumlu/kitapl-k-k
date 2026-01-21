@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
+const LibraryBook = require('./models/LibraryBook');
 
 // --- AYARLAR ---
 app.set('view engine', 'ejs');
@@ -101,21 +102,40 @@ app.get('/list', requireLogin, async (req, res) => {
     }); 
 });
 
-// --- KİTAP İŞLEMLERİ ---
-
-// 5. Kitap Ekleme Sayfası
-// 5. Kitap Ekleme Sayfası (GET)
-app.get('/add', requireLogin, (req, res) => {
-    // Sayfaya giderken kütüphane havuzunu da (libraryPool) yanımızda götürüyoruz
-    res.render('add-book', { library: libraryPool }); 
-});
-
-// 6. Kitap Kaydetme
+// --- 1. EKSİK PARÇA: Kitap Kaydetme (POST) ---
+// Formdan gelen veriyi veritabanına kaydeder
 app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     user.books.push({ title: req.body.title, author: req.body.author });
     await user.save();
-    res.redirect('/list'); // Ekledikten sonra listeye gitsin
+    res.redirect('/list'); // Kaydettikten sonra listeye atar
+});
+// --- 2. EKSİK PARÇA: Öneri Sistemi (GET) ---
+// "Bana Öner" sayfasını açar
+app.get('/recommend', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const myBookTitles = user.books.map(b => b.title.toLowerCase().trim());
+
+    // Veritabanından (LibraryBook) havuzu çek
+    const libraryPool = await LibraryBook.find({});
+
+    // Senin kitaplarını havuzdan ele
+    const recommendations = libraryPool.filter(poolBook => {
+        return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
+    });
+
+    // Rastgele 3 tane seç
+    const randomRecommendations = [];
+    if (recommendations.length > 0) {
+        const count = Math.min(3, recommendations.length); 
+        for (let i = 0; i < count; i++) {
+            const randomIndex = Math.floor(Math.random() * recommendations.length);
+            randomRecommendations.push(recommendations[randomIndex]);
+            recommendations.splice(randomIndex, 1);
+        }
+    }
+
+    res.render('recommend', { suggestions: randomRecommendations });
 });
 
 // 7. Kitap Silme
