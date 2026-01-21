@@ -36,16 +36,22 @@ mongoose.connect(dbURL)
     .catch((err) => console.error('❌ Bağlantı HATASI:', err));
 
 // --- MODELLER ---
+
+// 1. Kullanıcı Modeli (Zaten vardı)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    books: [{ 
-        title: String,
-        author: String 
-    }]
+    books: [{ title: String, author: String }]
 });
 const User = mongoose.model('User', UserSchema);
 
+// 2. YENİ: Genel Kitap Havuzu Modeli (Sanal Kütüphane)
+const LibrarySchema = new mongoose.Schema({
+    title: String,
+    author: String,
+    type: String
+});
+const LibraryBook = require('./models/LibraryBook');
 // --- ROUTE'LAR (SAYFALAR) ---
 
 // 1. Ana Yönlendirme
@@ -98,8 +104,10 @@ app.get('/list', requireLogin, async (req, res) => {
 // --- KİTAP İŞLEMLERİ ---
 
 // 5. Kitap Ekleme Sayfası
+// 5. Kitap Ekleme Sayfası (GET)
 app.get('/add', requireLogin, (req, res) => {
-    res.render('add-book'); 
+    // Sayfaya giderken kütüphane havuzunu da (libraryPool) yanımızda götürüyoruz
+    res.render('add-book', { library: libraryPool }); 
 });
 
 // 6. Kitap Kaydetme
