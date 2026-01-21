@@ -1,20 +1,23 @@
 <%- include('layout') %>
-<div class="card p-4 shadow-sm border-0 mx-auto bg-white" style="max-width: 500px;">
-    <h3 class="fw-bold mb-4 text-center">Yeni Kitap Ekle</h3>
-    <form action="/add" method="POST">
-        <div class="mb-3">
-            <label class="form-label">Kitap Adı</label>
-            <input type="text" name="title" class="form-control" placeholder="Kitap adını girin..." required>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h3 class="mb-4 text-center">Yeni Kitap Ekle</h3>
+            <form action="/add-book" method="POST">
+                <div class="mb-3">
+                    <label>Kitap Adı</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Yazar</label>
+                    <input type="text" name="author" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Kaydet</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Yazar</label>
-            <input type="text" name="author" class="form-control" placeholder="Yazar adını girin..." required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Basım Tarihi</label>
-            <input type="date" name="year" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Kitaplığıma Ekle</button>
-    </form>
+    </div>
 </div>
-</body></html>
+
+</div> </body>
+</html>
