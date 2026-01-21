@@ -3,25 +3,24 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
-const LibraryBook = require('./models/LibraryBook'); // 1. Tanımlama burada (Doğru)
+
+// --- MODELLERİ ÇAĞIR ---
+const LibraryBook = require('./models/LibraryBook');
 
 // --- AYARLAR ---
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
-// Session
 app.use(session({
     secret: 'gizli-anahtar',
     resave: false,
     saveUninitialized: true
 }));
 
-// --- GİRİŞ KONTROLÜ (Middleware) ---
+// --- GİRİŞ KONTROLÜ ---
 const requireLogin = (req, res, next) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
+    if (!req.session.userId) return res.redirect('/login');
     next();
 };
 
@@ -36,27 +35,20 @@ mongoose.connect(dbURL)
     })
     .catch((err) => console.error('❌ Bağlantı HATASI:', err));
 
-// --- MODELLER ---
-
-// 1. Kullanıcı Modeli
-const UserSchema = new mongoose.Schema({
+// --- USER MODELİ ---
+const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     books: [{ title: String, author: String }]
-});
-const User = mongoose.model('User', UserSchema);
+}));
 
-// (BURADAKİ HATALI İKİNCİ TANIMLAMAYI SİLDİM) - Artık hata vermeyecek.
+// --- ROTALAR ---
 
-// --- ROUTE'LAR (SAYFALAR) ---
-
-// 1. Ana Yönlendirme
 app.get('/', (req, res) => {
     if (req.session.userId) return res.redirect('/books');
     res.redirect('/login');
 });
 
-// 2. Giriş & Kayıt & Çıkış
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -67,6 +59,7 @@ app.post('/login', async (req, res) => {
     }
     res.render('login', { error: 'Hatalı giriş!' });
 });
+
 app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
     try {
@@ -77,64 +70,55 @@ app.post('/register', async (req, res) => {
         res.render('register', { error: 'Kullanıcı adı alınmış!' });
     }
 });
+
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
 
-// --- ANA SAYFALAR ---
-
-// 3. Hoş Geldin Ekranı
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    res.render('index', { 
-        totalBooks: user.books.length 
-    }); 
+    res.render('index', { totalBooks: user ? user.books.length : 0 }); 
 });
 
-// 4. Kitap Listesi
 app.get('/list', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    res.render('books', { 
-        books: user.books 
-    }); 
+    res.render('books', { books: user ? user.books : [] }); 
 });
 
-// 5. Kitap Ekleme Sayfası (Düzeltildi: Veriyi gönderiyor)
 app.get('/add', requireLogin, async (req, res) => {
-    const library = await LibraryBook.find({}); 
-    res.render('add-book', { library: library }); 
+    try {
+        const library = await LibraryBook.find({}); 
+        res.render('add-book', { library: library });
+    } catch (err) {
+        res.render('add-book', { library: [] });
+    }
 });
 
-// --- KİTAP İŞLEMLERİ (POST) ---
-
-// 6. Kitap Kaydetme
 app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    user.books.push({ title: req.body.title, author: req.body.author });
-    await user.save();
+    if (user) {
+        user.books.push({ title: req.body.title, author: req.body.author });
+        await user.save();
+    }
     res.redirect('/list');
 });
 
-// 7. Öneri Sistemi (Düzeltildi: 's' harfi silindi)
+// --- ÖNERİ SİSTEMİ (KURŞUN GEÇİRMEZ) ---
 app.get('/recommend', requireLogin, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        
-        // GÜVENLİK ÖNLEMİ: Sadece başlığı (title) olan kitapları al, yoksa boş geç
-        const myBookTitles = user.books.map(b => {
-            return b.title ? b.title.toLowerCase().trim() : "";
-        });
+        if (!user) return res.redirect('/login');
 
-        // Veritabanından havuzu çek
+        const myBookTitles = user.books
+            .filter(b => b && b.title)
+            .map(b => b.title.toLowerCase().trim());
+
         const libraryPool = await LibraryBook.find({});
 
-        // Filtreleme
         const recommendations = libraryPool.filter(poolBook => {
-            // Eğer havuzdaki kitabın adı yoksa (hata varsa) onu da ele
-            if (!poolBook.title) return false;
+            if (!poolBook || !poolBook.title) return false;
             return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
         });
 
-        // Rastgele 3 tane seç
-        const randomRecommendations = [];
+        let randomRecommendations = [];
         if (recommendations.length > 0) {
             const count = Math.min(3, recommendations.length); 
             for (let i = 0; i < count; i++) {
@@ -143,25 +127,20 @@ app.get('/recommend', requireLogin, async (req, res) => {
                 recommendations.splice(randomIndex, 1);
             }
         }
-
         res.render('recommend', { suggestions: randomRecommendations });
-
     } catch (error) {
-        console.error("Öneri Sistemi Hatası:", error);
-        res.send("Bir hata oluştu: " + error.message);
+        console.error("HATA:", error);
+        res.status(500).send("Öneriler yüklenirken bir hata oluştu: " + error.message);
     }
 });
 
-
-// 8. Kitap Silme
 app.post('/delete-book/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    user.books = user.books.filter(b => b._id.toString() !== req.params.id);
-    await user.save();
+    if (user) {
+        user.books = user.books.filter(b => b._id.toString() !== req.params.id);
+        await user.save();
+    }
     res.redirect('/list');
 });
 
-// 9. Hakkımda
-app.get('/about', requireLogin, (req, res) => {
-    res.render('about');
-});
+app.get('/about', requireLogin, (req, res) => res.render('about'));
