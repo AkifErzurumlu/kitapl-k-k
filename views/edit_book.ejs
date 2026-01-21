@@ -1,0 +1,20 @@
+<%- include('layout') %>
+<div class="card p-4 shadow-sm border-0 mx-auto bg-white" style="max-width: 500px;">
+    <h3 class="fw-bold mb-4 text-center">Bilgileri Güncelle</h3>
+    <form action="/edit/<%= book._id %>" method="POST">
+        <div class="mb-3">
+            <label class="form-label">Kitap Adı</label>
+            <input type="text" name="title" class="form-control" value="<%= book.title %>" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Yazar</label>
+            <input type="text" name="author" class="form-control" value="<%= book.author %>" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Basım Tarihi</label>
+            <input type="date" name="year" class="form-control" value="<%= book.year %>" required>
+        </div>
+        <button type="submit" class="btn btn-warning w-100 py-2 text-white">Değişiklikleri Kaydet</button>
+    </form>
+</div>
+</body></html>

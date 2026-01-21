@@ -1,0 +1,19 @@
+{
+  "name": "kutuphane-projesi",
+  "version": "1.0.0",
+  "description": "Node.js Kutuphane Projesi",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "ejs": "*",
+    "express": "*",
+    "express-session": "*",
+    "mongoose": "*"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
