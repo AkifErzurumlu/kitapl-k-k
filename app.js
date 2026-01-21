@@ -115,27 +115,43 @@ app.post('/add-book', requireLogin, async (req, res) => {
 
 // 7. Öneri Sistemi (Düzeltildi: 's' harfi silindi)
 app.get('/recommend', requireLogin, async (req, res) => {
-    const user = await User.findById(req.session.userId);
-    const myBookTitles = user.books.map(b => b.title.toLowerCase().trim());
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        // GÜVENLİK ÖNLEMİ: Sadece başlığı (title) olan kitapları al, yoksa boş geç
+        const myBookTitles = user.books.map(b => {
+            return b.title ? b.title.toLowerCase().trim() : "";
+        });
 
-    const libraryPool = await LibraryBook.find({});
+        // Veritabanından havuzu çek
+        const libraryPool = await LibraryBook.find({});
 
-    const recommendations = libraryPool.filter(poolBook => {
-        return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
-    });
+        // Filtreleme
+        const recommendations = libraryPool.filter(poolBook => {
+            // Eğer havuzdaki kitabın adı yoksa (hata varsa) onu da ele
+            if (!poolBook.title) return false;
+            return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
+        });
 
-    const randomRecommendations = [];
-    if (recommendations.length > 0) {
-        const count = Math.min(3, recommendations.length); 
-        for (let i = 0; i < count; i++) {
-            const randomIndex = Math.floor(Math.random() * recommendations.length);
-            randomRecommendations.push(recommendations[randomIndex]);
-            recommendations.splice(randomIndex, 1);
+        // Rastgele 3 tane seç
+        const randomRecommendations = [];
+        if (recommendations.length > 0) {
+            const count = Math.min(3, recommendations.length); 
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * recommendations.length);
+                randomRecommendations.push(recommendations[randomIndex]);
+                recommendations.splice(randomIndex, 1);
+            }
         }
-    }
 
-    res.render('recommend', { suggestions: randomRecommendations });
+        res.render('recommend', { suggestions: randomRecommendations });
+
+    } catch (error) {
+        console.error("Öneri Sistemi Hatası:", error);
+        res.send("Bir hata oluştu: " + error.message);
+    }
 });
+
 
 // 8. Kitap Silme
 app.post('/delete-book/:id', requireLogin, async (req, res) => {
