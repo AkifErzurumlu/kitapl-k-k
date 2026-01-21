@@ -6,7 +6,6 @@ const app = express();
 
 // --- AYARLAR ---
 app.set('view engine', 'ejs');
-
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,14 +16,12 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// --- VERİTABANI BAĞLANTISI (Buraya Kendi Linkini Yapıştır) ---
-// DİKKAT: <password> yerine 123456 yazmayı unutma!
-const dbURL = 'mongodb+srv://akiferz2004_db_user:Akiferz1.@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+// --- VERİTABANI BAĞLANTISI ---
+const dbURL = 'mongodb+srv://akiferz2004_db_user:Akiferz1.@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
 
 mongoose.connect(dbURL)
     .then(() => {
         console.log('✅ Veritabanına BAĞLANDI!');
-        // Sunucuyu sadece veritabanı bağlandıktan sonra başlat
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda çalışıyor...`));
     })
@@ -32,7 +29,7 @@ mongoose.connect(dbURL)
         console.error('❌ Veritabanı Bağlantı HATASI:', err);
     });
 
-// --- MODELLER (ŞEMALAR) ---
+// --- MODELLER ---
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -44,9 +41,8 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-// --- ROUTE'LAR (YÖNLENDİRMELER) ---
+// --- ROUTE'LAR ---
 
-// Ana Sayfa (Giriş Kontrolü)
 app.get('/', (req, res) => {
     if (req.session.userId) {
         return res.redirect('/books');
@@ -54,7 +50,6 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
-// Giriş Sayfası
 app.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
@@ -69,7 +64,6 @@ app.post('/login', async (req, res) => {
     res.render('login', { error: 'Kullanıcı adı veya şifre hatalı!' });
 });
 
-// Kayıt Sayfası
 app.get('/register', (req, res) => {
     res.render('register', { error: null });
 });
@@ -85,14 +79,19 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Kitaplar Sayfası (Korumalı)
+// --- DÜZELTİLEN KISIM BURASI ---
 app.get('/books', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const user = await User.findById(req.session.userId);
-    res.render('index', { books: user.books, user: user }); // 'index.ejs' kullanıyoruz
+    
+    // BURAYI DÜZELTTİK: totalBooks'u artık gönderiyoruz!
+    res.render('index', { 
+        books: user.books, 
+        user: user,
+        totalBooks: user.books.length 
+    }); 
 });
 
-// Kitap Ekleme
 app.post('/add-book', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const { title, author } = req.body;
@@ -102,7 +101,6 @@ app.post('/add-book', async (req, res) => {
     res.redirect('/books');
 });
 
-// Kitap Silme
 app.post('/delete-book/:id', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const user = await User.findById(req.session.userId);
@@ -111,7 +109,6 @@ app.post('/delete-book/:id', async (req, res) => {
     res.redirect('/books');
 });
 
-// Çıkış Yap
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/login');
