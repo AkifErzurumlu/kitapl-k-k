@@ -16,7 +16,17 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// --- MIDDLEWARE (Eksik Olan Parça Buydu!) ---
+// Giriş yapılıp yapılmadığını kontrol eden fonksiyon
+const requireLogin = (req, res, next) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    next();
+};
+
 // --- VERİTABANI BAĞLANTISI ---
+// (Şifreni senin yazdığın gibi Akiferz1. olarak bıraktım)
 const dbURL = 'mongodb+srv://akiferz2004_db_user:Akiferz1.@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
 
 mongoose.connect(dbURL)
@@ -33,6 +43,7 @@ mongoose.connect(dbURL)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    // Kitapları kullanıcının içinde tutuyoruz (Senin yapın bu)
     books: [{ 
         title: String,
         author: String,
@@ -41,8 +52,9 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-// --- ROUTE'LAR ---
+// --- ROUTE'LAR (SAYFALAR) ---
 
+// Ana Sayfa Yönlendirmesi
 app.get('/', (req, res) => {
     if (req.session.userId) {
         return res.redirect('/books');
@@ -50,6 +62,7 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
+// Giriş İşlemleri
 app.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
@@ -64,6 +77,7 @@ app.post('/login', async (req, res) => {
     res.render('login', { error: 'Kullanıcı adı veya şifre hatalı!' });
 });
 
+// Kayıt İşlemleri
 app.get('/register', (req, res) => {
     res.render('register', { error: null });
 });
@@ -79,13 +93,12 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// --- DÜZELTİLEN KISIM BURASI ---
+// --- KİTAP İŞLEMLERİ (Burayı senin yapına göre düzelttim) ---
+
+// Kitapları Listeleme
 app.get('/books', requireLogin, async (req, res) => {
-    // Sadece giriş yapan kullanıcının kitaplarını getir ({ owner: ... })
-    const books = await Book.find({ owner: req.session.userId }).sort({ createdAt: -1 });
-    res.render('books', { books });
-    
-    // BURAYI DÜZELTTİK: totalBooks'u artık gönderiyoruz!
+    const user = await User.findById(req.session.userId);
+    // index.ejs sayfasına tüm verileri gönderiyoruz
     res.render('index', { 
         books: user.books, 
         user: user,
@@ -93,54 +106,28 @@ app.get('/books', requireLogin, async (req, res) => {
     }); 
 });
 
-app.get('/add', requireLogin, (req, res) => res.render('add-book'));
-
-app.post('/add', requireLogin, async (req, res) => {
-    const book = new Book({
+// Kitap Ekleme
+app.post('/add-book', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    user.books.push({
         title: req.body.title,
-        author: req.body.author,
-        year: req.body.year,
-        owner: req.session.userId // Kitabı ekleyeni kaydet
+        author: req.body.author
     });
-    await book.save();
+    await user.save();
     res.redirect('/books');
 });
 
-app.get('/delete/:id', requireLogin, async (req, res) => {
-    await Book.findOneAndDelete({ _id: req.params.id, owner: req.session.userId });
+// Kitap Silme
+app.post('/delete-book/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    user.books = user.books.filter(book => book._id.toString() !== req.params.id);
+    await user.save();
     res.redirect('/books');
 });
 
-app.get('/about', requireLogin, (req, res) => res.render('about'));
-
+// Çıkış Yapma
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/login');
     });
-});
-// Düzenleme
-app.get('/edit/:id', requireLogin, async (req, res) => {
-    const book = await Book.findOne({ _id: req.params.id, owner: req.session.userId });
-    if (!book) return res.redirect('/books');
-    res.render('edit-book', { book });
-});
-
-app.post('/edit/:id', requireLogin, async (req, res) => {
-    await Book.findOneAndUpdate(
-        { _id: req.params.id, owner: req.session.userId }, // Sadece kendi kitabını güncelleyebilir
-        req.body
-    );
-    res.redirect('/books');
-});
-// Kitap Listesi
-app.get('/books', requireLogin, async (req, res) => {
-    // Sadece giriş yapan kullanıcının kitaplarını getir ({ owner: ... })
-    const books = await Book.find({ owner: req.session.userId }).sort({ createdAt: -1 });
-    res.render('books', { books });
-});
-// Anasayfa
-app.get('/', requireLogin, async (req, res) => {
-    // Sadece giriş yapan kullanıcının kitaplarını say
-    const count = await Book.countDocuments({ owner: req.session.userId });
-    res.render('index', { totalBooks: count });
 });
