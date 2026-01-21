@@ -89,6 +89,12 @@ app.get('/books', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const user = await User.findById(req.session.userId);
     res.render('index', { books: user.books, user: user }); // 'index.ejs' kullanıyoruz
+       // BURAYI DÜZELTTİK: totalBooks'u artık gönderiyoruz!
+    res.render('index', { 
+        books: user.books, 
+        user: user,
+        totalBooks: user.books.length 
+    }); 
 });
 
 // Kitap Ekleme
