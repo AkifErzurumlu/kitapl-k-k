@@ -8,62 +8,58 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/books">📚 Akif'in Kütüphanesi</a>
-            <a href="/logout" class="btn btn-danger btn-sm">Çıkış Yap</a>
-        </div>
-    </nav>
+    <div class="container-fluid py-5 text-center bg-white shadow-sm mb-4">
+        <h1 class="display-5 fw-bold">Hoş Geldin!</h1>
+        <p class="fs-4">Şu an kütüphanende tam <strong><%= totalBooks %></strong> kitap bulunuyor.</p>
+        <a href="#kitap-ekle" class="btn btn-primary btn-lg">Yeni Kitap Ekle</a>
+    </div>
 
     <div class="container">
-        <div class="p-5 mb-4 bg-white rounded-3 shadow-sm text-center">
-            <h1 class="display-5 fw-bold">Hoş Geldin!</h1>
-            <p class="fs-4">Kütüphanende şu an <strong><%= totalBooks %></strong> kitap var.</p>
-            <% if (totalBooks === 0) { %>
-                <div class="alert alert-warning">
-                    🚀 Listen bomboş! Aşağıdan hemen ilk kitabını ekle.
-                </div>
-            <% } %>
-        </div>
+        <% if (totalBooks === 0) { %>
+            <div class="alert alert-warning text-center">
+                Henüz hiç kitap eklemedin. Hadi başlayalım!
+            </div>
+        <% } %>
 
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Yeni Kitap Ekle</h5>
+        <div class="row">
+            
+            <div class="col-md-4 mb-4" id="kitap-ekle">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Hızlı Ekle</h5>
                     </div>
                     <div class="card-body">
-                        <form action="/add-book" method="POST" class="d-flex gap-2">
-                            <input type="text" name="title" class="form-control" placeholder="Kitap Adı" required>
-                            <input type="text" name="author" class="form-control" placeholder="Yazar Adı" required>
-                            <button type="submit" class="btn btn-success">Ekle</button>
+                        <form action="/add-book" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Kitap Adı</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Yazar</label>
+                                <input type="text" name="author" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Kaydet</button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <% books.forEach(book => { %>
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary"><%= book.title %></h5>
-                            <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
-                            <p class="card-text">
-                                <span class="badge bg-<%= book.isRead ? 'success' : 'secondary' %>">
-                                    <%= book.isRead ? 'Okundu' : 'Okunmadı' %>
-                                </span>
-                            </p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <form action="/delete-book/<%= book._id %>" method="POST">
-                                <button type="submit" class="btn btn-outline-danger w-100 btn-sm">Sil</button>
+            <div class="col-md-8">
+                <div class="list-group shadow-sm">
+                    <% books.forEach(book => { %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1"><%= book.title %></h5>
+                                <small class="text-muted"><%= book.author %></small>
+                            </div>
+                            <form action="/delete-book/<%= book._id %>" method="POST" class="m-0">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
                             </form>
                         </div>
-                    </div>
+                    <% }) %>
                 </div>
-            <% }) %>
+            </div>
+
         </div>
     </div>
 
