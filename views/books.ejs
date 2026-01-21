@@ -1,37 +1,38 @@
 <%- include('layout') %>
 
-<div class="container">
-    <h2 class="text-center mb-4 fw-bold" style="color: #fff;">📚 Kitap Listem</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white fw-bold">📚 Kitap Listem</h2>
+    <a href="/add" class="btn btn-light btn-sm">+ Yeni Ekle</a>
+</div>
 
-    <div class="row">
-        <% if (books.length === 0) { %>
-            <div class="col-12 text-center">
-                <div class="alert alert-light opacity-75">
-                    Listen bomboş! "Kitap Ekle" menüsünden hemen ekle.
-                </div>
+<div class="row">
+    <% if (books.length === 0) { %>
+        <div class="col-12 text-center">
+            <div class="alert alert-light opacity-75">
+                Listen bomboş! Hemen bir kitap ekle.
             </div>
-        <% } else { %>
-            <% books.forEach(book => { %>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
-                            <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
-                        </div>
-                        <div class="card-footer bg-white border-0 text-end">
-                            <form action="/delete-book/<%= book._id %>" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
-                            </form>
-                        </div>
+        </div>
+    <% } else { %>
+        <% books.forEach(book => { %>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
+                        <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-end">
+                        <form action="/delete-book/<%= book._id %>" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+                        </form>
                     </div>
                 </div>
-            <% }) %>
-        <% } %>
-    </div>
-    
-    <div class="text-center mt-4">
-        <a href="/books" class="btn btn-outline-light">← Ana Ekrana Dön</a>
-    </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
+
+<div class="text-center mt-4">
+    <a href="/books" class="btn btn-outline-light text-white text-decoration-none">← Ana Ekrana Dön</a>
 </div>
 
 </div> </body>

@@ -1,9 +1,18 @@
 <%- include('layout') %>
-<div class="p-5 mb-4 bg-white rounded-3 border">
-    <div class="container-fluid py-5 text-center">
-        <h1 class="display-5 fw-bold">Hoş Geldin!</h1>
-        <p class="fs-4">Şu an kütüphanende tam <strong><%= totalBooks %></strong> kitap bulunuyor.</p>
-        <a href="/list" class="btn btn-primary btn-lg">Kitapları Görüntüle</a>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10 text-center">
+        <div class="p-5 bg-white rounded-3 shadow-sm border">
+            <h1 class="display-4 fw-bold mb-3">Hoş Geldin!</h1>
+            <p class="fs-4 text-muted">Şu an kütüphanende tam <strong><%= totalBooks %></strong> kitap bulunuyor.</p>
+            
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                <a href="/list" class="btn btn-primary btn-lg px-4 gap-3">Kitapları Görüntüle</a>
+                <a href="/add" class="btn btn-outline-secondary btn-lg px-4">Yeni Kitap Ekle</a>
+            </div>
+        </div>
     </div>
 </div>
-</body></html>
+
+</div> </body>
+</html>
