@@ -19,7 +19,7 @@ app.use(session({
 
 // --- VERİTABANI BAĞLANTISI (Buraya Kendi Linkini Yapıştır) ---
 // DİKKAT: <password> yerine 123456 yazmayı unutma!
-const dbURL = 'mongodb+srv://akiferz2004_db_user:123456@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const dbURL = 'mongodb+srv://akiferz2004_db_user:Akiferz1.@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 mongoose.connect(dbURL)
     .then(() => {
