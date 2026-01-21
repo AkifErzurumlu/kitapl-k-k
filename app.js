@@ -48,11 +48,12 @@ const User = mongoose.model('User', UserSchema);
 
 // 2. YENİ: Genel Kitap Havuzu Modeli (Sanal Kütüphane)
 const LibrarySchema = new mongoose.Schema({
-    title: String,
-    author: String,
-    type: String
+    title: String,
+    author: String,
+    type: String
 });
 const LibraryBook = require('./models/LibraryBook');
+
 // --- ROUTE'LAR (SAYFALAR) ---
 
 // 1. Ana Yönlendirme
