@@ -1,38 +1,38 @@
 <%- include('layout') %>
-<div class="card p-4 shadow-sm border-0 bg-white">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="fw-bold">Kitaplarım</h2>
-        <a href="/add" class="btn btn-success btn-sm">+ Yeni Kitap</a>
+
+<div class="container">
+    <h2 class="text-center mb-4 fw-bold" style="color: #fff;">📚 Kitap Listem</h2>
+
+    <div class="row">
+        <% if (books.length === 0) { %>
+            <div class="col-12 text-center">
+                <div class="alert alert-light opacity-75">
+                    Listen bomboş! "Kitap Ekle" menüsünden hemen ekle.
+                </div>
+            </div>
+        <% } else { %>
+            <% books.forEach(book => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
+                        </div>
+                        <div class="card-footer bg-white border-0 text-end">
+                            <form action="/delete-book/<%= book._id %>" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
     </div>
     
-    <table class="table table-hover mt-2">
-        <thead class="table-light">
-            <tr>
-                <th>Kitap Adı</th>
-                <th>Yazar</th>
-                <th>Basım Tarihi</th>
-                <th class="text-end">İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (books.length === 0) { %>
-                <tr>
-                    <td colspan="4" class="text-center text-muted py-3">Henüz hiç kitap eklemedin.</td>
-                </tr>
-            <% } else { %>
-                <% books.forEach(book => { %>
-                <tr>
-                    <td><%= book.title %></td>
-                    <td><%= book.author %></td>
-                    <td><%= book.year %></td>
-                    <td class="text-end">
-                        <a href="/edit/<%= book._id %>" class="btn btn-outline-warning btn-sm mx-1">Düzenle</a>
-                        <a href="/delete/<%= book._id %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Silmek istediğine emin misin?')">Sil</a>
-                    </td>
-                </tr>
-                <% }) %>
-            <% } %>
-        </tbody>
-    </table>
+    <div class="text-center mt-4">
+        <a href="/books" class="btn btn-outline-light">← Ana Ekrana Dön</a>
+    </div>
 </div>
-</body></html>
+
+</div> </body>
+</html>
