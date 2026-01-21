@@ -103,7 +103,7 @@ app.get('/add', requireLogin, (req, res) => {
 });
 
 // 6. Kitap Kaydetme
-app.post('/add', requireLogin, async (req, res) => {
+app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     user.books.push({ title: req.body.title, author: req.body.author });
     await user.save();
