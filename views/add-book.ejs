@@ -1,21 +1,36 @@
 <%- include('layout') %>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h3 class="mb-4 text-center">Yeni Kitap Ekle</h3>
-            <form action="/add-book" method="POST">
-                <div class="mb-3">
-                    <label>Kitap Adı</label>
-                    <input type="text" name="title" class="form-control" required>
+<div class="container">
+    <h2 class="text-center mb-4 fw-bold" style="color: #fff;">📚 Kitap Listem</h2>
+
+    <div class="row">
+        <% if (books.length === 0) { %>
+            <div class="col-12 text-center">
+                <div class="alert alert-light opacity-75">
+                    Listen bomboş! "Kitap Ekle" menüsünden hemen ekle.
                 </div>
-                <div class="mb-3">
-                    <label>Yazar</label>
-                    <input type="text" name="author" class="form-control" required>
+            </div>
+        <% } else { %>
+            <% books.forEach(book => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
+                        </div>
+                        <div class="card-footer bg-white border-0 text-end">
+                            <form action="/delete-book/<%= book._id %>" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-success w-100">Kaydet</button>
-            </form>
-        </div>
+            <% }) %>
+        <% } %>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="/books" class="btn btn-outline-light">← Ana Ekrana Dön</a>
     </div>
 </div>
 
