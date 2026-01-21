@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
-const LibraryBook = require('./models/LibraryBook');
+const LibraryBook = require('./models/LibraryBook'); // 1. Tanımlama burada (Doğru)
 
 // --- AYARLAR ---
 app.set('view engine', 'ejs');
@@ -38,7 +38,7 @@ mongoose.connect(dbURL)
 
 // --- MODELLER ---
 
-// 1. Kullanıcı Modeli (Zaten vardı)
+// 1. Kullanıcı Modeli
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -46,13 +46,7 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-// 2. YENİ: Genel Kitap Havuzu Modeli (Sanal Kütüphane)
-const LibrarySchema = new mongoose.Schema({
-    title: String,
-    author: String,
-    type: String
-});
-const LibraryBook = require('./models/LibraryBook');
+// (BURADAKİ HATALI İKİNCİ TANIMLAMAYI SİLDİM) - Artık hata vermeyecek.
 
 // --- ROUTE'LAR (SAYFALAR) ---
 
@@ -87,7 +81,7 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login'
 
 // --- ANA SAYFALAR ---
 
-// 3. Hoş Geldin Ekranı (Bu senin hatanın sebebiydi, düzelttim)
+// 3. Hoş Geldin Ekranı
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.render('index', { 
@@ -95,7 +89,7 @@ app.get('/books', requireLogin, async (req, res) => {
     }); 
 });
 
-// 4. Kitap Listesi (YENİ SAYFA)
+// 4. Kitap Listesi
 app.get('/list', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.render('books', { 
@@ -103,29 +97,33 @@ app.get('/list', requireLogin, async (req, res) => {
     }); 
 });
 
-// --- 1. EKSİK PARÇA: Kitap Kaydetme (POST) ---
-// Formdan gelen veriyi veritabanına kaydeder
+// 5. Kitap Ekleme Sayfası (Düzeltildi: Veriyi gönderiyor)
+app.get('/add', requireLogin, async (req, res) => {
+    const library = await LibraryBook.find({}); 
+    res.render('add-book', { library: library }); 
+});
+
+// --- KİTAP İŞLEMLERİ (POST) ---
+
+// 6. Kitap Kaydetme
 app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     user.books.push({ title: req.body.title, author: req.body.author });
     await user.save();
-    res.redirect('/list'); // Kaydettikten sonra listeye atar
+    res.redirect('/list');
 });
-// --- 2. EKSİK PARÇA: Öneri Sistemi (GET) ---
-// "Bana Öner" sayfasını açar
+
+// 7. Öneri Sistemi (Düzeltildi: 's' harfi silindi)
 app.get('/recommend', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const myBookTitles = user.books.map(b => b.title.toLowerCase().trim());
 
-    // Veritabanından (LibraryBook) havuzu çek
     const libraryPool = await LibraryBook.find({});
 
-    // Senin kitaplarını havuzdan ele
     const recommendations = libraryPool.filter(poolBook => {
         return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
     });
 
-    // Rastgele 3 tane seç
     const randomRecommendations = [];
     if (recommendations.length > 0) {
         const count = Math.min(3, recommendations.length); 
@@ -139,15 +137,15 @@ app.get('/recommend', requireLogin, async (req, res) => {
     res.render('recommend', { suggestions: randomRecommendations });
 });
 
-// 7. Kitap Silme
+// 8. Kitap Silme
 app.post('/delete-book/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     user.books = user.books.filter(b => b._id.toString() !== req.params.id);
     await user.save();
-    res.redirect('/list'); // Sildikten sonra listeye gitsin
+    res.redirect('/list');
 });
 
-// 8. Hakkımda
+// 9. Hakkımda
 app.get('/about', requireLogin, (req, res) => {
     res.render('about');
 });
