@@ -81,15 +81,13 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login'
 // --- İŞTE EKSİK OLAN KISIMLAR GERİ GELDİ ---
 
 // 1. Kitap Listesi
-// 1. Kitap Listesi
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    // ARTIK 'books.ejs' DOSYASINI AÇACAK
-    res.render('books', { 
-        books: user.books 
+    res.render('index', { 
+        books: user.books, 
+        totalBooks: user.books.length 
     }); 
 });
-
 
 // 2. Kitap Ekleme Sayfası (GET) -> ARTIK ÇALIŞACAK
 app.get('/add', requireLogin, (req, res) => {
