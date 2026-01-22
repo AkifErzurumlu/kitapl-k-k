@@ -38,13 +38,15 @@
                         </form>
                     </div>
                     
-                    <div class="card-footer bg-white border-0 d-flex justify-content-between">
-                        <a href="/edit/<%= book._id %>" class="btn btn-outline-warning btn-sm">
-                            ✏️ Düzenle
+                    <div class="card-footer bg-white border-0 d-flex gap-1">
+                        <a href="/read/<%= book._id %>" class="btn btn-info text-white btn-sm flex-grow-1">
+                            📖 Oku
                         </a>
-
-                        <form action="/delete-book/<%= book._id %>" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">🗑️ Sil</button>
+    
+                        <a href="/edit/<%= book._id %>" class="btn btn-outline-warning btn-sm">✏️</a>
+    
+                        <form action="/delete-book/<%= book._id %>" method="POST">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">🗑️</button>
                         </form>
                     </div>
 

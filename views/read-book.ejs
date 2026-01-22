@@ -1,0 +1,35 @@
+<%- include('layout') %>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="/list" class="btn btn-outline-light text-white">← Listeye Dön</a>
+            <span class="badge bg-warning text-dark fs-6"><%= book.author %></span>
+        </div>
+
+        <div class="card shadow-lg border-0" style="background-color: #fdf6e3; color: #586e75; min-height: 80vh;">
+            <div class="card-body p-5">
+                <h1 class="display-5 fw-bold mb-4 text-center" style="color: #b58900; font-family: 'Georgia', serif;">
+                    <%= book.title %>
+                </h1>
+                
+                <hr style="border-color: #b58900; opacity: 0.3;">
+                
+                <div class="book-content mt-4" style="font-family: 'Georgia', serif; font-size: 1.3rem; line-height: 1.8; white-space: pre-wrap; text-align: justify;">
+                    <% if (book.content) { %>
+                        <%= book.content %>
+                    <% } else { %>
+                        <div class="text-center mt-5 opacity-50">
+                            <p>Henüz bu kitaba bir içerik eklenmemiş.</p>
+                            <a href="/edit/<%= book._id %>" class="btn btn-outline-secondary btn-sm">✍️ Metin Ekle</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div> </body> </html>

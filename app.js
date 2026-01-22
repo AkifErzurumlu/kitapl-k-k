@@ -38,13 +38,15 @@ mongoose.connect(dbURL)
     .catch((err) => console.error('❌ Bağlantı HATASI:', err));
 
 // --- 5. KULLANICI MODELİ (GÜNCELLENDİ: OKUNDU BİLGİSİ EKLENDİ) ---
+// --- 5. KULLANICI MODELİ ---
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     books: [{ 
         title: String, 
         author: String,
-        isRead: { type: Boolean, default: false } // YENİ: Varsayılan olarak okunmadı (false)
+        isRead: { type: Boolean, default: false },
+        content: { type: String, default: "" } // YENİ: Kitap metni burada saklanacak
     }]
 }));
 
@@ -117,11 +119,15 @@ app.get('/add', requireLogin, async (req, res) => {
     }
 });
 
-// Kitabı Veritabanına Kaydet
+// --- A. KİTAP EKLEME (GÜNCELLE) ---
 app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (user) {
-        user.books.push({ title: req.body.title, author: req.body.author });
+        user.books.push({ 
+            title: req.body.title, 
+            author: req.body.author,
+            content: req.body.content // YENİ: Metni al
+        });
         await user.save();
     }
     res.redirect('/list');
@@ -139,7 +145,7 @@ app.get('/edit/:id', requireLogin, async (req, res) => {
     res.render('edit-book', { book: book });
 });
 
-// 2. Güncellenen Bilgileri Kaydet
+// --- B. KİTAP DÜZENLEME (GÜNCELLE) ---
 app.post('/edit/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const book = user.books.id(req.params.id);
@@ -147,6 +153,7 @@ app.post('/edit/:id', requireLogin, async (req, res) => {
     if (book) {
         book.title = req.body.title;
         book.author = req.body.author;
+        book.content = req.body.content; // YENİ: Metni güncelle
         await user.save();
     }
     res.redirect('/list');
@@ -173,6 +180,15 @@ app.post('/delete-book/:id', requireLogin, async (req, res) => {
         await user.save();
     }
     res.redirect('/list');
+});
+// --- C. OKUMA MODU (YENİ ROTA - En alta, delete'in üstüne koyabilirsin) ---
+app.get('/read/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const book = user.books.id(req.params.id);
+
+    if (!book) return res.redirect('/list');
+
+    res.render('read-book', { book: book });
 });
 
 // --- EKSTRA ÖZELLİKLER ---
