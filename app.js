@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
+// --- ADMIN AYARI (Burası Çok Önemli) ---
+const ADMIN_USERNAME = "akiferz"; // BURAYA KENDİ KULLANICI ADINI YAZ (Tırnak içinde)
 
 // --- 1. MODEL TANIMLAMALARI ---
 const LibraryBook = require('./models/LibraryBook'); // Kitap havuzu modelimiz
@@ -145,16 +147,32 @@ app.get('/edit/:id', requireLogin, async (req, res) => {
     res.render('edit-book', { book: book });
 });
 
-// --- B. KİTAP DÜZENLEME (GÜNCELLE) ---
+// --- B. KİTAP DÜZENLEME (GÜNCELLENDİ: SADECE ADMIN HERKESİ ETKİLER) ---
 app.post('/edit/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    const book = user.books.id(req.params.id);
+    const userBook = user.books.id(req.params.id);
     
-    if (book) {
-        book.title = req.body.title;
-        book.author = req.body.author;
-        book.content = req.body.content; // YENİ: Metni güncelle
+    if (userBook) {
+        // 1. Herkes kendi kişisel listesindeki başlığı/yazarı düzeltebilir
+        userBook.title = req.body.title;
+        userBook.author = req.body.author;
+        
+        // Kişisel yedeği de güncelleyelim (Admin değilse bile kendi yedeği olsun)
+        userBook.content = req.body.content; 
+        
         await user.save();
+
+        // 2. GÜVENLİK KONTROLÜ: Kullanıcı ADMIN ise, Ana Kütüphaneyi de günceller
+        if (user.username === ADMIN_USERNAME) {
+            await LibraryBook.findOneAndUpdate(
+                { title: userBook.title }, // İsmi eşleşen kitabı bul
+                { content: req.body.content, author: req.body.author }, // İçeriği güncelle
+                { upsert: true } // Yoksa oluştur
+            );
+            console.log("👑 ADMIN: Ortak kütüphane güncellendi.");
+        } else {
+            console.log("👤 USER: Sadece kişisel liste güncellendi.");
+        }
     }
     res.redirect('/list');
 });
@@ -181,14 +199,22 @@ app.post('/delete-book/:id', requireLogin, async (req, res) => {
     }
     res.redirect('/list');
 });
-// --- C. OKUMA MODU (YENİ ROTA - En alta, delete'in üstüne koyabilirsin) ---
+// --- C. OKUMA SAYFASI (GÜNCELLENDİ: ORTAK HAVUZDAN OKUR) ---
 app.get('/read/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    const book = user.books.id(req.params.id);
+    const userBook = user.books.id(req.params.id); // Kullanıcının listesindeki kitap
 
-    if (!book) return res.redirect('/list');
+    if (!userBook) return res.redirect('/list');
 
-    res.render('read-book', { book: book });
+    // Kullanıcının kitabının ismine bakıp, Ana Kütüphane'den o kitabı buluyoruz
+    // Çünkü özet orada kayıtlı!
+    const globalBook = await LibraryBook.findOne({ title: userBook.title });
+
+    // Eğer ana kütüphanede varsa onun içeriğini, yoksa (kişisel eklediyse) kullanıcınınkini göster
+    const contentToShow = globalBook ? globalBook.content : userBook.content;
+
+    // Sayfaya hem kitap bilgisini hem de bulunan içeriği gönderiyoruz
+    res.render('read-book', { book: userBook, content: contentToShow });
 });
 
 // --- EKSTRA ÖZELLİKLER ---

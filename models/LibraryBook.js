@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
-const LibrarySchema = new mongoose.Schema({
-    title: String,
-    author: String,
-    type: String
+const libraryBookSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    author: { type: String, required: true },
+    // YENİ: Artık özetler burada, herkes için ortak tutulacak
+    content: { type: String, default: "Henüz bir özet eklenmemiş." } 
 });
 
-module.exports = mongoose.model('LibraryBook', LibrarySchema);
+module.exports = mongoose.model('LibraryBook', libraryBookSchema);
