@@ -37,11 +37,15 @@ mongoose.connect(dbURL)
     })
     .catch((err) => console.error('❌ Bağlantı HATASI:', err));
 
-// --- 5. KULLANICI MODELİ ---
+// --- 5. KULLANICI MODELİ (GÜNCELLENDİ: OKUNDU BİLGİSİ EKLENDİ) ---
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    books: [{ title: String, author: String }]
+    books: [{ 
+        title: String, 
+        author: String,
+        isRead: { type: Boolean, default: false } // YENİ: Varsayılan olarak okunmadı (false)
+    }]
 }));
 
 // ============================================
@@ -123,7 +127,7 @@ app.post('/add-book', requireLogin, async (req, res) => {
     res.redirect('/list');
 });
 
-// --- KİTAP DÜZENLEME İŞLEMLERİ (UPDATE - EKSİK OLAN KISIM) ---
+// --- KİTAP DÜZENLEME İŞLEMLERİ (UPDATE) ---
 
 // 1. Düzenleme Sayfasını Aç
 app.get('/edit/:id', requireLogin, async (req, res) => {
@@ -148,6 +152,19 @@ app.post('/edit/:id', requireLogin, async (req, res) => {
     res.redirect('/list');
 });
 
+// --- OKUNDU / OKUNMADI İŞARETLEME (YENİ EKLENEN KISIM) ---
+app.post('/toggle-read/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const book = user.books.id(req.params.id);
+    
+    if (book) {
+        // Durum neyse tersini yap (True ise False, False ise True)
+        book.isRead = !book.isRead; 
+        await user.save();
+    }
+    res.redirect('/list');
+});
+
 // --- KİTAP SİLME İŞLEMİ (DELETE) ---
 app.post('/delete-book/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
@@ -160,7 +177,7 @@ app.post('/delete-book/:id', requireLogin, async (req, res) => {
 
 // --- EKSTRA ÖZELLİKLER ---
 
-// Öneri Sistemi (Algorithm)
+// Öneri Sistemi
 app.get('/recommend', requireLogin, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);

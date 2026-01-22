@@ -15,10 +15,27 @@
     <% } else { %>
         <% books.forEach(book => { %>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm border-0">
+                <div class="card h-100 shadow-sm <%= book.isRead ? 'border-success' : 'border-0' %>" 
+                     style="<%= book.isRead ? 'border-width: 2px;' : '' %>">
+                    
                     <div class="card-body">
-                        <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><%= book.author %></h6>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
+                            
+                            <% if (book.isRead) { %>
+                                <span class="badge bg-success">✅ Okundu</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">⏳ Okunacak</span>
+                            <% } %>
+                        </div>
+                        
+                        <h6 class="card-subtitle mb-3 text-muted"><%= book.author %></h6>
+
+                        <form action="/toggle-read/<%= book._id %>" method="POST" class="mb-3">
+                            <button type="submit" class="btn btn-sm w-100 <%= book.isRead ? 'btn-outline-secondary' : 'btn-success' %>">
+                                <%= book.isRead ? 'Geri Al (Okunmadı Yap)' : '✅ Okudum Olarak İşaretle' %>
+                            </button>
+                        </form>
                     </div>
                     
                     <div class="card-footer bg-white border-0 d-flex justify-content-between">
@@ -30,7 +47,8 @@
                             <button type="submit" class="btn btn-outline-danger btn-sm">🗑️ Sil</button>
                         </form>
                     </div>
-                    </div>
+
+                </div>
             </div>
         <% }) %>
     <% } %>
