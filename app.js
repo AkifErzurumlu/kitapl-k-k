@@ -4,27 +4,29 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
 
-// --- MODELLERİ ÇAĞIR ---
-const LibraryBook = require('./models/LibraryBook');
+// --- 1. MODEL TANIMLAMALARI ---
+const LibraryBook = require('./models/LibraryBook'); // Kitap havuzu modelimiz
 
-// --- AYARLAR ---
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
+// --- 2. AYARLAR ---
+app.set('view engine', 'ejs'); // Görünüm motoru EJS
+app.use(express.static('public')); // CSS ve resimler için klasör
+app.use(express.urlencoded({ extended: true })); // Form verilerini okumak için
 
+// Oturum (Session) Ayarları
 app.use(session({
     secret: 'gizli-anahtar',
     resave: false,
     saveUninitialized: true
 }));
 
-// --- GİRİŞ KONTROLÜ ---
+// --- 3. GÜVENLİK KONTROLÜ (Middleware) ---
+// Giriş yapmamış kullanıcıyı engelleme fonksiyonu
 const requireLogin = (req, res, next) => {
     if (!req.session.userId) return res.redirect('/login');
     next();
 };
 
-// --- VERİTABANI BAĞLANTISI ---
+// --- 4. VERİTABANI BAĞLANTISI ---
 const dbURL = 'mongodb+srv://akiferz2004_db_user:Akiferz1.@cluster0.fuenfsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
 
 mongoose.connect(dbURL)
@@ -35,21 +37,29 @@ mongoose.connect(dbURL)
     })
     .catch((err) => console.error('❌ Bağlantı HATASI:', err));
 
-// --- USER MODELİ ---
+// --- 5. KULLANICI MODELİ ---
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     books: [{ title: String, author: String }]
 }));
 
-// --- ROTALAR ---
+// ============================================
+//               ROTALAR (SAYFALAR)
+// ============================================
 
+// --- ANA YÖNLENDİRME ---
 app.get('/', (req, res) => {
     if (req.session.userId) return res.redirect('/books');
     res.redirect('/login');
 });
 
+// --- GİRİŞ VE KAYIT İŞLEMLERİ (AUTH) ---
+
+// Giriş Sayfası
 app.get('/login', (req, res) => res.render('login', { error: null }));
+
+// Giriş Yapma İşlemi
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -60,7 +70,10 @@ app.post('/login', async (req, res) => {
     res.render('login', { error: 'Hatalı giriş!' });
 });
 
+// Kayıt Ol Sayfası
 app.get('/register', (req, res) => res.render('register', { error: null }));
+
+// Kayıt Olma İşlemi
 app.post('/register', async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -71,18 +84,26 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// Çıkış Yapma
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
 
+// --- ANA SAYFALAR ---
+
+// Hoş Geldin Ekranı
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.render('index', { totalBooks: user ? user.books.length : 0 }); 
 });
 
+// Kitap Listesi Sayfası
 app.get('/list', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.render('books', { books: user ? user.books : [] }); 
 });
 
+// --- KİTAP EKLEME İŞLEMLERİ (CREATE) ---
+
+// Kitap Ekleme Sayfasını Aç
 app.get('/add', requireLogin, async (req, res) => {
     try {
         const library = await LibraryBook.find({}); 
@@ -92,6 +113,7 @@ app.get('/add', requireLogin, async (req, res) => {
     }
 });
 
+// Kitabı Veritabanına Kaydet
 app.post('/add-book', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (user) {
@@ -101,23 +123,63 @@ app.post('/add-book', requireLogin, async (req, res) => {
     res.redirect('/list');
 });
 
-// --- ÖNERİ SİSTEMİ (KURŞUN GEÇİRMEZ) ---
+// --- KİTAP DÜZENLEME İŞLEMLERİ (UPDATE - EKSİK OLAN KISIM) ---
+
+// 1. Düzenleme Sayfasını Aç
+app.get('/edit/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const book = user.books.id(req.params.id); // Düzenlenecek kitabı bul
+    
+    if (!book) return res.redirect('/list');
+    
+    res.render('edit-book', { book: book });
+});
+
+// 2. Güncellenen Bilgileri Kaydet
+app.post('/edit/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const book = user.books.id(req.params.id);
+    
+    if (book) {
+        book.title = req.body.title;
+        book.author = req.body.author;
+        await user.save();
+    }
+    res.redirect('/list');
+});
+
+// --- KİTAP SİLME İŞLEMİ (DELETE) ---
+app.post('/delete-book/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    if (user) {
+        user.books = user.books.filter(b => b._id.toString() !== req.params.id);
+        await user.save();
+    }
+    res.redirect('/list');
+});
+
+// --- EKSTRA ÖZELLİKLER ---
+
+// Öneri Sistemi (Algorithm)
 app.get('/recommend', requireLogin, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
         if (!user) return res.redirect('/login');
 
+        // Kullanıcının kitaplarını küçük harfe çevirip listele
         const myBookTitles = user.books
             .filter(b => b && b.title)
             .map(b => b.title.toLowerCase().trim());
 
         const libraryPool = await LibraryBook.find({});
 
+        // Havuzdan kullanıcının kitaplarını çıkar
         const recommendations = libraryPool.filter(poolBook => {
             if (!poolBook || !poolBook.title) return false;
             return !myBookTitles.includes(poolBook.title.toLowerCase().trim());
         });
 
+        // Rastgele 3 tane seç
         let randomRecommendations = [];
         if (recommendations.length > 0) {
             const count = Math.min(3, recommendations.length); 
@@ -134,13 +196,5 @@ app.get('/recommend', requireLogin, async (req, res) => {
     }
 });
 
-app.post('/delete-book/:id', requireLogin, async (req, res) => {
-    const user = await User.findById(req.session.userId);
-    if (user) {
-        user.books = user.books.filter(b => b._id.toString() !== req.params.id);
-        await user.save();
-    }
-    res.redirect('/list');
-});
-
+// Hakkımda Sayfası
 app.get('/about', requireLogin, (req, res) => res.render('about'));
