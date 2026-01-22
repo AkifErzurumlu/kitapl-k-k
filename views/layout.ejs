@@ -17,7 +17,7 @@
             color: #333;
         }
         .navbar {
-            background-color: 4b9ca2 !important;
+            background-color: rgba(255, 255, 255, 0.95) !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .navbar-brand {
@@ -48,6 +48,16 @@
             text-align: center;
             padding: 15px 0;
             font-size: 0.9rem;
+        }
+        /* HAMBURGER MENÜ ÇERÇEVESİ */
+        .navbar-toggler {
+            border: 2px solid #2424259c; /* Çerçevesi mor olsun */
+            outline: none;
+        }
+        
+        /* O 3 ÇİZGİNİN RENGİ (Normalde navbar-light ile siyah olur ama biz mor yapalım şık dursun) */
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(102, 126, 234, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
         }
     </style>
 </head>
