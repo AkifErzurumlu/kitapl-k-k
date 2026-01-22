@@ -199,22 +199,49 @@ app.post('/delete-book/:id', requireLogin, async (req, res) => {
     }
     res.redirect('/list');
 });
-// --- C. OKUMA SAYFASI (GÜNCELLENDİ: ORTAK HAVUZDAN OKUR) ---
+// --- C. OKUMA SAYFASI (GÜNCELLENDİ: YORUMLARI DA GETİRİR) ---
 app.get('/read/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    const userBook = user.books.id(req.params.id); // Kullanıcının listesindeki kitap
+    const userBook = user.books.id(req.params.id);
 
     if (!userBook) return res.redirect('/list');
 
-    // Kullanıcının kitabının ismine bakıp, Ana Kütüphane'den o kitabı buluyoruz
-    // Çünkü özet orada kayıtlı!
+    // Ortak kütüphaneden kitabı bul (Yorumlar orada!)
     const globalBook = await LibraryBook.findOne({ title: userBook.title });
 
-    // Eğer ana kütüphanede varsa onun içeriğini, yoksa (kişisel eklediyse) kullanıcınınkini göster
+    // İçeriği ve Yorumları belirle
     const contentToShow = globalBook ? globalBook.content : userBook.content;
+    const commentsToShow = globalBook ? globalBook.comments : []; // Yorum yoksa boş liste gönder
 
-    // Sayfaya hem kitap bilgisini hem de bulunan içeriği gönderiyoruz
-    res.render('read-book', { book: userBook, content: contentToShow });
+    res.render('read-book', { 
+        book: userBook, 
+        content: contentToShow,
+        comments: commentsToShow // Yorumları sayfaya gönderdik
+    });
+});
+
+// --- D. YORUM YAPMA İŞLEMİ (YENİ ROTA) ---
+app.post('/comment', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const { bookTitle, commentText, redirectId } = req.body; // Formdan gelen veriler
+
+    if (user && commentText.trim() !== "") {
+        // Yorumu Ortak Kütüphaneye Ekle
+        await LibraryBook.findOneAndUpdate(
+            { title: bookTitle }, // Kitabı bul
+            { 
+                $push: { // Listeye yeni yorum ekle
+                    comments: {
+                        username: user.username,
+                        text: commentText
+                    }
+                }
+            },
+            { upsert: true } // Kitap havuzda yoksa oluştur
+        );
+    }
+    // Kullanıcıyı tekrar okuma sayfasına gönder
+    res.redirect('/read/' + redirectId);
 });
 
 // --- EKSTRA ÖZELLİKLER ---

@@ -8,7 +8,7 @@
             <span class="badge bg-warning text-dark fs-6"><%= book.author %></span>
         </div>
 
-        <div class="card shadow-lg border-0" style="background-color: #fdf6e3; color: #586e75; min-height: 80vh;">
+        <div class="card shadow-lg border-0 mb-4" style="background-color: #fdf6e3; color: #586e75; min-height: 500px;">
             <div class="card-body p-5">
                 <h1 class="display-5 fw-bold mb-4 text-center" style="color: #b58900; font-family: 'Georgia', serif;">
                     <%= book.title %>
@@ -17,7 +17,7 @@
                 <hr style="border-color: #b58900; opacity: 0.3;">
                 
                 <div class="book-content mt-4" style="font-family: 'Georgia', serif; font-size: 1.3rem; line-height: 1.8; white-space: pre-wrap; text-align: justify;">
-                    <% if (book.content) { %>
+                    <% if (content) { %>
                         <%= content %>
                     <% } else { %>
                         <div class="text-center mt-5 opacity-50">
@@ -29,7 +29,55 @@
             </div>
         </div>
 
-    </div>
+        <div class="card shadow-lg border-0 mb-5">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h4 class="fw-bold" style="color: #667eea;">💬 Kitap Tartışması</h4>
+            </div>
+            
+            <div class="card-body px-4">
+                
+                <div class="comments-section mb-4" style="max-height: 400px; overflow-y: auto;">
+                    <% if (typeof comments == 'undefined' || comments.length === 0) { %>
+                        <div class="alert alert-light text-center text-muted">
+                            Henüz kimse yorum yapmamış. İlk görüşü sen bildir! 🚀
+                        </div>
+                    <% } else { %>
+                        <% comments.slice().reverse().forEach(comment => { %> 
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                                         style="width: 45px; height: 45px; background-color: #667eea; font-size: 1.2rem;">
+                                        <%= comment.username.charAt(0).toUpperCase() %>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3 p-3 rounded bg-light">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold mb-1 text-dark"><%= comment.username %></h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            <%= new Date(comment.date).toLocaleDateString('tr-TR') %>
+                                        </small>
+                                    </div>
+                                    <p class="mb-0 text-secondary"><%= comment.text %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+
+                <form action="/comment" method="POST" class="d-flex gap-2 border-top pt-3">
+                    <input type="hidden" name="bookTitle" value="<%= book.title %>">
+                    <input type="hidden" name="redirectId" value="<%= book._id %>">
+                    
+                    <input type="text" name="commentText" class="form-control form-control-lg" placeholder="Bu kitap hakkında ne düşünüyorsun?..." required autocomplete="off">
+                    
+                    <button type="submit" class="btn btn-primary btn-lg text-white px-4" style="background-color: #667eea; border: none;">
+                        Gönder
+                    </button>
+                </form>
+
+            </div>
+        </div>
+        </div>
 </div>
 
 </div> </body> </html>
