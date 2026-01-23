@@ -11,32 +11,39 @@
                     <h3 class="fw-bold mb-4" style="color: #667eea;">Bize Ulaşın</h3>
                     <p class="text-muted mb-4">Proje hakkında önerilerin mi var? Aşağıdaki formu kullanarak bizimle iletişime geçebilirsin.</p>
                     
-                    <form>
+                    <form action="https://formsubmit.co/akiferz2004@gmail.com" method="POST">
+                        
+                        <input type="hidden" name="_subject" value="Kütüphanem Sitesinden Yeni Mesaj!">
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_next" value="https://akif-kutuphane.onrender.com/about">
+                        <input type="hidden" name="_template" value="table">
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">Adınız</label>
-                                <input type="text" class="form-control form-control-lg bg-light border-0" placeholder="Adınız">
+                                <input type="text" name="name" class="form-control form-control-lg bg-light border-0" placeholder="Adınız" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">Soyadınız</label>
-                                <input type="text" class="form-control form-control-lg bg-light border-0" placeholder="Soyadınız">
+                                <input type="text" name="surname" class="form-control form-control-lg bg-light border-0" placeholder="Soyadınız" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small">E-posta Adresi</label>
-                            <input type="email" class="form-control form-control-lg bg-light border-0" placeholder="ornek@email.com">
+                            <input type="email" name="email" class="form-control form-control-lg bg-light border-0" placeholder="ornek@email.com" required>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold small">Mesajınız</label>
-                            <textarea class="form-control form-control-lg bg-light border-0" rows="5" placeholder="Mesajınızı buraya yazın..."></textarea>
+                            <textarea name="message" class="form-control form-control-lg bg-light border-0" rows="5" placeholder="Mesajınızı buraya yazın..." required></textarea>
                         </div>
 
-                        <button type="button" class="btn btn-primary w-100 py-3 fw-bold shadow-sm" style="background-color: #667eea; border: none; border-radius: 10px;" onclick="alert('Mesajınız başarıyla gönderildi! (Demo)')">
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm" style="background-color: #667eea; border: none; border-radius: 10px;">
                             🚀 Mesajı Gönder
                         </button>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -73,11 +80,11 @@
                                 <i class="fab fa-github fa-lg"></i>
                             </a>
 
-                            <a href="www.linkedin.com/in/emin-akif-erzurumlu-064b00346" target="_blank" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; transition: 0.3s;">
+                            <a href="https://www.linkedin.com/in/emin-akif-erzurumlu-064b00346" target="_blank" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; transition: 0.3s;">
                                 <i class="fab fa-linkedin-in fa-lg"></i>
                             </a>
 
-                            <a href="akiferz2004@gmail.com" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; transition: 0.3s;">
+                            <a href="mailto:akiferz2004@gmail.com" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; transition: 0.3s;">
                                 <i class="fas fa-envelope fa-lg"></i>
                             </a>
 
