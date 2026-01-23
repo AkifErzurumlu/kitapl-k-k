@@ -48,7 +48,8 @@ const User = mongoose.model('User', new mongoose.Schema({
         title: String, 
         author: String,
         isRead: { type: Boolean, default: false },
-        content: { type: String, default: "" } // YENİ: Kitap metni burada saklanacak
+        content: { type: String, default: "" }, // YENİ: Kitap metni burada saklanacak
+        // Github guncelleme denemesi v1
         imageUrl: { type: String, default: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=60" }
     }]
 }));
@@ -59,7 +60,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 // --- ANA YÖNLENDİRME (Landing Page - GÜNCELLENDİ) ---
 
-// YENİSİ (BUNU YAPIŞTIR)
+// YENİSİ (BUNU YAPIŞTIR)aaaaa
 app.get('/', async (req, res) => {
     let user = null;
     
