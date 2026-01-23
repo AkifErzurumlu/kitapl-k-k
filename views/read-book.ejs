@@ -57,7 +57,21 @@
                                             <%= new Date(comment.date).toLocaleDateString('tr-TR') %>
                                         </small>
                                     </div>
-                                    <p class="mb-0 text-secondary"><%= comment.text %></p>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                       <p class="mb-0 text-secondary"><%= comment.text %></p>
+    
+                                       <% if (typeof currentUser != 'undefined' && (currentUser.username === comment.username || currentUser.username === 'akiferz')) { %> 
+                                           <form action="/delete-comment" method="POST" class="ms-2">
+                                               <input type="hidden" name="bookTitle" value="<%= book.title %>">
+                                               <input type="hidden" name="commentId" value="<%= comment._id %>">
+                                               <input type="hidden" name="redirectId" value="<%= book._id %>">
+                                            <button type="submit" class="btn btn-sm text-danger p-0 border-0" onclick="return confirm('Yorumu silmek istediğine emin misin?')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                            </form>
+                                        <% } %>
+                                </div>
+                                    
                                 </div>
                             </div>
                         <% }) %>

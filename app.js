@@ -228,7 +228,8 @@ app.get('/read/:id', requireLogin, async (req, res) => {
     res.render('read-book', { 
         book: userBook, 
         content: contentToShow,
-        comments: commentsToShow // Yorumları sayfaya gönderdik
+        comments: commentsToShow,
+        currentUser: user // <--- YENİ EKLEDİĞİMİZ KISIM (Senin kim olduğunu sayfaya bildiriyoruz)
     });
 });
 
@@ -253,6 +254,29 @@ app.post('/comment', requireLogin, async (req, res) => {
         );
     }
     // Kullanıcıyı tekrar okuma sayfasına gönder
+    res.redirect('/read/' + redirectId);
+});
+// --- E. YORUM SİLME İŞLEMİ (YENİ) ---
+app.post('/delete-comment', requireLogin, async (req, res) => {
+    const { bookTitle, commentId, redirectId } = req.body;
+    const user = await User.findById(req.session.userId);
+
+    // Kitabı Bul
+    const book = await LibraryBook.findOne({ title: bookTitle });
+
+    if (book) {
+        // Yorumu bul
+        const comment = book.comments.id(commentId);
+        
+        // GÜVENLİK: Sadece yorumun sahibi VEYA Admin silebilir!
+        if (comment && (comment.username === user.username || user.username === ADMIN_USERNAME)) {
+            await LibraryBook.findOneAndUpdate(
+                { title: bookTitle },
+                { $pull: { comments: { _id: commentId } } } // $pull: Listeden çekip alır (siler)
+            );
+        }
+    }
+    // Tekrar okuma sayfasına dön
     res.redirect('/read/' + redirectId);
 });
 
