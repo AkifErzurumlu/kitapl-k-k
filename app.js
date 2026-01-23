@@ -158,40 +158,43 @@ app.post('/add', requireLogin, async (req, res) => {
 // 1. Düzenleme Sayfasını Aç
 app.get('/edit/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    const book = user.books.id(req.params.id); // Düzenlenecek kitabı bul
-    
+    const book = user.books.id(req.params.id); // Kitabı bul
+
     if (!book) return res.redirect('/list');
-    
-    res.render('books', { books: user.books });
+
+    res.render('edit-book', { book: book });
 });
 
+  
 // --- B. KİTAP DÜZENLEME (GÜNCELLENDİ: SADECE ADMIN HERKESİ ETKİLER) ---
 app.post('/edit/:id', requireLogin, async (req, res) => {
+    const { title, author, imageUrl, content } = req.body;
     const user = await User.findById(req.session.userId);
-    const userBook = user.books.id(req.params.id);
     
-    if (userBook) {
-        // 1. Herkes kendi kişisel listesindeki başlığı/yazarı düzeltebilir
-        userBook.title = req.body.title;
-        userBook.author = req.body.author;
-        
-        // Kişisel yedeği de güncelleyelim (Admin değilse bile kendi yedeği olsun)
-        userBook.content = req.body.content; 
-        
-        await user.save();
-
-        // 2. GÜVENLİK KONTROLÜ: Kullanıcı ADMIN ise, Ana Kütüphaneyi de günceller
-        if (user.username === ADMIN_USERNAME) {
-            await LibraryBook.findOneAndUpdate(
-                { title: userBook.title }, // İsmi eşleşen kitabı bul
-                { content: req.body.content, author: req.body.author }, // İçeriği güncelle
-                { upsert: true } // Yoksa oluştur
-            );
-            console.log("👑 ADMIN: Ortak kütüphane güncellendi.");
-        } else {
-            console.log("👤 USER: Sadece kişisel liste güncellendi.");
-        }
+    // Kitabı bulup güncelliyoruz
+    const book = user.books.id(req.params.id);
+    book.title = title;
+    book.author = author;
+    book.content = content;
+    
+    // Eğer resim linki boşsa varsayılanı korusun, doluysa güncellesin
+    if (imageUrl && imageUrl.trim() !== "") {
+        book.imageUrl = imageUrl;
     }
+
+    await user.save();
+    res.redirect('/list'); // Listeye dön
+});
+
+// --- 3. OKUNDU / OKUNACAK İŞARETLE (POST) ---
+app.post('/mark-read/:id', requireLogin, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const book = user.books.id(req.params.id);
+
+    // Durumu tersine çevir (True ise False, False ise True yap)
+    book.isRead = !book.isRead;
+    
+    await user.save();
     res.redirect('/list');
 });
 

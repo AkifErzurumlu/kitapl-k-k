@@ -31,8 +31,6 @@
                             
                             <% if (book.isRead) { %>
                                 <span class="badge bg-success position-absolute top-0 end-0 m-3 shadow">Okundu</span>
-                            <% } else { %>
-                                <span class="badge bg-secondary position-absolute top-0 end-0 m-3 shadow">Okunacak</span>
                             <% } %>
 
                             <img src="<%= book.imageUrl ? book.imageUrl : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=60' %>" 
@@ -45,30 +43,30 @@
                             <h6 class="card-title fw-bold text-truncate" title="<%= book.title %>"><%= book.title %></h6>
                             <p class="card-text text-muted small mb-3"><%= book.author %></p>
                             
-                            <div class="d-grid gap-2">
-                                <a href="/read/<%= book._id %>" class="btn btn-outline-primary btn-sm" style="border-radius: 20px;">
-                                    <i class="fas fa-book-open me-1"></i> İncele & Oku
+                            <a href="/read/<%= book._id %>" class="btn btn-primary w-100 mb-3 shadow-sm" style="background-color: #667eea; border: none; border-radius: 10px;">
+                                İncele & Oku
+                            </a>
+                            
+                            <div class="d-flex justify-content-center gap-2">
+                                
+                                <form action="/mark-read/<%= book._id %>" method="POST">
+                                    <button type="submit" class="btn btn-light rounded-circle shadow-sm text-success" style="width: 40px; height: 40px;" title="<%= book.isRead ? 'Okunmadı Yap' : 'Okundu Yap' %>">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                
+                                <a href="/edit/<%= book._id %>" class="btn btn-light rounded-circle shadow-sm text-warning" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 
-                                <div class="btn-group" role="group">
-                                    
-                                    <form action="/mark-read/<%= book._id %>" method="POST" class="w-100">
-                                        <button type="submit" class="btn btn-sm w-100 <%= book.isRead ? 'btn-light text-muted' : 'btn-success text-white' %>" style="border-radius: 20px 0 0 20px;" title="Okundu İşaretle">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                    
-                                    <a href="/edit/<%= book._id %>" class="btn btn-warning btn-sm text-white w-100" title="Düzenle">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    
-                                    <form action="/delete/<%= book._id %>" method="POST" class="w-100" onsubmit="return confirm('Bu kitabı silmek istediğine emin misin?');">
-                                        <button type="submit" class="btn btn-danger btn-sm w-100" style="border-radius: 0 20px 20px 0;" title="Sil">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <form action="/delete/<%= book._id %>" method="POST" onsubmit="return confirm('Bu kitabı silmek istediğine emin misin?');">
+                                    <button type="submit" class="btn btn-light rounded-circle shadow-sm text-danger" style="width: 40px; height: 40px;" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+
                             </div>
+
                         </div>
 
                     </div>

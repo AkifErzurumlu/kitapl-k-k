@@ -1,40 +1,46 @@
 <%- include('layout') %>
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-6">
-        <div class="card p-4 shadow-lg border-0">
-            <h3 class="mb-4 text-center fw-bold" style="color: #667eea;">Kitabı Düzenle</h3>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0" style="border-radius: 20px;">
             
-            <form action="/edit/<%= book._id %>" method="POST">
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Kitap Adı</label>
-                    <input type="text" name="title" class="form-control form-control-lg" value="<%= book.title %>" required>
-                </div>
+            <div class="card-header bg-warning text-white text-center py-3" style="border-radius: 20px 20px 0 0;">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-edit me-2"></i>Kitabı Düzenle</h4>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Yazar Adı</label>
-                    <input type="text" name="author" class="form-control form-control-lg" value="<%= book.author %>" required>
-                </div>
-                <div class="mb-3">
-    <label class="form-label fw-bold">Kitap İçeriği</label>
-    <div class="mb-3">
-    <label class="form-label fw-bold">Kitap İçeriği</label>
-    <textarea name="content" class="form-control" rows="10"><%= book.content %></textarea>
-    
-    <div class="form-text text-danger">
-        ⚠️ <strong>Dikkat:</strong> İçeriği sadece Admin genel olarak değiştirebilir. 
-        Admin değilseniz, yaptığınız değişiklikler sadece sizin profilinizde görünür, diğer kullanıcıları etkilemez.
-    </div>
-</div>
-</div>
+            <div class="card-body p-4">
+                <form action="/edit/<%= book._id %>" method="POST">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted">Kitap Adı</label>
+                        <input type="text" name="title" class="form-control form-control-lg" value="<%= book.title %>" required>
+                    </div>
 
-                <button type="submit" class="btn btn-warning btn-lg w-100 mt-3 text-white shadow-sm">
-                    💾 Değişiklikleri Kaydet
-                </button>
-                <a href="/list" class="btn btn-outline-secondary w-100 mt-2 border-0">Vazgeç</a>
-            </form>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted">Yazar</label>
+                        <input type="text" name="author" class="form-control form-control-lg" value="<%= book.author %>" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted">Kapak Resmi (Link)</label>
+                        <input type="text" name="imageUrl" class="form-control" value="<%= book.imageUrl %>" placeholder="Resim linkini buraya yapıştır...">
+                        <div class="form-text">Değiştirmek istemiyorsan olduğu gibi bırak.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted">Notların & Özetin</label>
+                        <textarea name="content" class="form-control" rows="8"><%= book.content %></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning text-white btn-lg fw-bold shadow-sm">
+                            💾 Değişiklikleri Kaydet
+                        </button>
+                        <a href="/list" class="btn btn-light btn-lg text-muted border">Vazgeç</a>
+                    </div>
+
+                </form>
+            </div>
         </div>
     </div>
 </div>
