@@ -82,6 +82,17 @@
         
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(102, 126, 234, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+            /* 👇 YENİ EKLENECEK KISIM BURASI 👇 */
+        /* Giriş ve Kayıt sayfalarındaki ana kutu için Buzlu Cam efekti */
+        .glass-box {
+            background-color: rgba(255, 255, 255, 0.85) !important; /* Yüzde 85 opak beyaz */
+            backdrop-filter: blur(10px); /* Arkadaki manzarayı bulanıklaştır */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Çok ince bir beyaz çerçeve */
+            border-radius: 30px !important; /* Köşeleri iyice yuvarlat */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important; /* Derinlik katan gölge */
+            padding: 50px !important; /* İçeriden geniş boşluk */
+        }
+        /* ☝️ YENİ EKLENECEK KISIM BİTTİ ☝️ */
         }
     </style>
 </head>
