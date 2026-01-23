@@ -5,7 +5,7 @@
         <div class="card p-4 shadow-lg border-0">
             <h3 class="mb-4 text-center fw-bold" style="color: #667eea;">Yeni Kitap Ekle</h3>
             
-            <form action="/add-book" method="POST">
+            <form action="/add" method="POST">
                 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Kitap Adı</label>
@@ -24,10 +24,16 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label fw-bold">Kitap Kapağı (Resim Linki)</label>
+                    <input type="text" name="imageUrl" class="form-control" placeholder="Örn: Google'dan resim bağlantısını yapıştır...">
+                    <div class="form-text">Boş bırakırsan otomatik resim atanır.</div>
+                </div>
+                <div class="mb-3">
                     <label class="form-label fw-bold">Kitap İçeriği / Hikaye</label>
                     <textarea name="content" class="form-control" rows="6" placeholder="Kitabın metnini, özetini veya hikayesini buraya yapıştır..."></textarea>
                     <div class="form-text">Buraya yapıştırdığın metni "Oku" modunda görebilirsin.</div>
                 </div>
+
                 <button type="submit" class="btn btn-success btn-lg w-100 mt-3 shadow-sm">
                     Kütüphaneye Kaydet
                 </button>

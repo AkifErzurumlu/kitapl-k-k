@@ -49,6 +49,7 @@ const User = mongoose.model('User', new mongoose.Schema({
         author: String,
         isRead: { type: Boolean, default: false },
         content: { type: String, default: "" } // YENİ: Kitap metni burada saklanacak
+        imageUrl: { type: String, default: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=60" }
     }]
 }));
 
@@ -133,18 +134,22 @@ app.get('/add', requireLogin, async (req, res) => {
     }
 });
 
-// --- A. KİTAP EKLEME (GÜNCELLE) ---
-app.post('/add-book', requireLogin, async (req, res) => {
+// --- A. KİTAP EKLEME (GÜNCELLENDİ: RESİMLİ) ---
+app.post('/add', requireLogin, async (req, res) => {
+    const { title, author, imageUrl } = req.body; // imageUrl'yi de alıyoruz
     const user = await User.findById(req.session.userId);
-    if (user) {
-        user.books.push({ 
-            title: req.body.title, 
-            author: req.body.author,
-            content: req.body.content // YENİ: Metni al
-        });
-        await user.save();
-    }
-    res.redirect('/list');
+    
+    // Eğer kullanıcı link girdiyse onu kullan, girmediyse varsayılanı kullan
+    const finalImage = imageUrl.trim() !== "" ? imageUrl : undefined;
+
+    user.books.push({ 
+        title, 
+        author, 
+        imageUrl: finalImage 
+    });
+    
+    await user.save();
+    res.redirect('/list'); // Listeye dön
 });
 
 // --- KİTAP DÜZENLEME İŞLEMLERİ (UPDATE) ---
@@ -156,7 +161,7 @@ app.get('/edit/:id', requireLogin, async (req, res) => {
     
     if (!book) return res.redirect('/list');
     
-    res.render('edit-book', { book: book });
+    res.render('books', { books: user.books });
 });
 
 // --- B. KİTAP DÜZENLEME (GÜNCELLENDİ: SADECE ADMIN HERKESİ ETKİLER) ---

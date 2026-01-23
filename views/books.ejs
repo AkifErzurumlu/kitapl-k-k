@@ -1,64 +1,89 @@
 <%- include('layout') %>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-white fw-bold">📚 Kitap Listem</h2>
-    <a href="/add" class="btn btn-light btn-sm">+ Yeni Ekle</a>
-</div>
-
-<div class="row">
-    <% if (books.length === 0) { %>
-        <div class="col-12 text-center">
-            <div class="alert alert-light opacity-75">
-                Listen bomboş! Hemen bir kitap ekle.
-            </div>
+<div class="container mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #2d3748;">Kütüphanem</h2>
+            <p class="text-muted">Arşivindeki tüm kitaplar burada listeleniyor.</p>
         </div>
-    <% } else { %>
-        <% books.forEach(book => { %>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm <%= book.isRead ? 'border-success' : 'border-0' %>" 
-                     style="<%= book.isRead ? 'border-width: 2px;' : '' %>">
-                    
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h5 class="card-title fw-bold" style="color: #667eea;"><%= book.title %></h5>
-                            
-                            <% if (book.isRead) { %>
-                                <span class="badge bg-success">✅ Okundu</span>
-                            <% } else { %>
-                                <span class="badge bg-secondary">⏳ Okunacak</span>
-                            <% } %>
-                        </div>
-                        
-                        <h6 class="card-subtitle mb-3 text-muted"><%= book.author %></h6>
+        <a href="/add" class="btn btn-primary px-4 py-2 fw-bold shadow-sm" style="background-color: #667eea; border: none; border-radius: 30px;">
+            + Yeni Kitap Ekle
+        </a>
+    </div>
 
-                        <form action="/toggle-read/<%= book._id %>" method="POST" class="mb-3">
-                            <button type="submit" class="btn btn-sm w-100 <%= book.isRead ? 'btn-outline-secondary' : 'btn-success' %>">
-                                <%= book.isRead ? 'Geri Al (Okunmadı Yap)' : '✅ Okudum Olarak İşaretle' %>
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <div class="card-footer bg-white border-0 d-flex gap-1">
-                        <a href="/read/<%= book._id %>" class="btn btn-info text-white btn-sm flex-grow-1">
-                            📖 Oku
-                        </a>
-    
-                        <a href="/edit/<%= book._id %>" class="btn btn-outline-warning btn-sm">✏️</a>
-    
-                        <form action="/delete-book/<%= book._id %>" method="POST">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">🗑️</button>
-                        </form>
-                    </div>
-
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        
+        <% if (books.length === 0) { %>
+            <div class="col-12 text-center mt-5">
+                <div class="alert alert-light py-5 shadow-sm">
+                    <h4>Henüz hiç kitabın yok! 📚</h4>
+                    <p class="text-muted">Hemen yukarıdaki butona basıp ilk kitabını ekle.</p>
                 </div>
             </div>
-        <% }) %>
-    <% } %>
+        <% } else { %>
+            
+            <% books.forEach(book => { %>
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm hover-card" style="transition: transform 0.2s; border-radius: 15px; overflow: hidden;">
+                        
+                        <div style="height: 280px; overflow: hidden; position: relative; background-color: #f8f9fa;">
+                            
+                            <% if (book.isRead) { %>
+                                <span class="badge bg-success position-absolute top-0 end-0 m-3 shadow">Okundu</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary position-absolute top-0 end-0 m-3 shadow">Okunacak</span>
+                            <% } %>
+
+                            <img src="<%= book.imageUrl ? book.imageUrl : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=60' %>" 
+                                 class="card-img-top" 
+                                 alt="<%= book.title %>" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+
+                        <div class="card-body text-center p-3">
+                            <h6 class="card-title fw-bold text-truncate" title="<%= book.title %>"><%= book.title %></h6>
+                            <p class="card-text text-muted small mb-3"><%= book.author %></p>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="/read/<%= book._id %>" class="btn btn-outline-primary btn-sm" style="border-radius: 20px;">
+                                    <i class="fas fa-book-open me-1"></i> İncele & Oku
+                                </a>
+                                
+                                <div class="btn-group" role="group">
+                                    
+                                    <form action="/mark-read/<%= book._id %>" method="POST" class="w-100">
+                                        <button type="submit" class="btn btn-sm w-100 <%= book.isRead ? 'btn-light text-muted' : 'btn-success text-white' %>" style="border-radius: 20px 0 0 20px;" title="Okundu İşaretle">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <a href="/edit/<%= book._id %>" class="btn btn-warning btn-sm text-white w-100" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    <form action="/delete/<%= book._id %>" method="POST" class="w-100" onsubmit="return confirm('Bu kitabı silmek istediğine emin misin?');">
+                                        <button type="submit" class="btn btn-danger btn-sm w-100" style="border-radius: 0 20px 20px 0;" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            <% }) %>
+
+        <% } %>
+    </div>
 </div>
 
-<div class="text-center mt-4">
-    <a href="/books" class="btn btn-outline-light text-white text-decoration-none">← Ana Ekrana Dön</a>
-</div>
+<style>
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
 
-</div> </body>
-</html>
+</div> </body> </html>
