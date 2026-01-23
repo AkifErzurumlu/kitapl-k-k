@@ -3,58 +3,87 @@
 <div class="d-flex align-items-center justify-content-center text-center" style="min-height: 85vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
     
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                
+        <div class="row justify-content-center align-items-center">
+            
+            <div class="col-lg-6 text-lg-start text-center mb-5 mb-lg-0">
                 <div class="mb-4">
-                    <i class="fas fa-book-reader fa-5x" style="color: #667eea;"></i>
+                    <i class="fas fa-book-reader fa-4x" style="color: #667eea;"></i>
                 </div>
-
-                <h1 class="display-3 fw-bold mb-3" style="color: #2d3748;">
+                <h1 class="display-4 fw-bold mb-3" style="color: #2d3748;">
                     Kişisel <span style="color: #667eea;">Kütüphanem</span>
                 </h1>
-                
-                <p class="lead text-muted mb-5">
+                <p class="lead text-muted mb-4">
                     Kitaplarını dijital ortamda sakla, özetlerini çıkar, arkadaşlarınla tartış. 
-                    Okuma alışkanlığını bir üst seviyeye taşı.
+                    Okuma serüvenini kaybetme.
                 </p>
-
-                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                    
-                    <% if (user) { %>
-                        <a href="/books" class="btn btn-primary btn-lg px-5 gap-3 fw-bold shadow-lg" style="background-color: #667eea; border: none; border-radius: 50px;">
-                            🚀 Kütüphaneme Git
-                        </a>
-                    <% } else { %>
-                        <a href="/login" class="btn btn-primary btn-lg px-4 gap-3 fw-bold shadow" style="background-color: #667eea; border: none; border-radius: 50px;">
-                            Giriş Yap
-                        </a>
-                        <a href="/register" class="btn btn-outline-secondary btn-lg px-4 fw-bold shadow-sm" style="border-radius: 50px;">
-                            Kayıt Ol
-                        </a>
-                    <% } %>
-
+                
+                <div class="d-flex justify-content-center justify-content-lg-start gap-4 text-muted">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-check-circle text-success"></i> Ücretsiz
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-check-circle text-success"></i> Güvenli
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-check-circle text-success"></i> Kolay
+                    </div>
                 </div>
+            </div>
 
-                <div class="row mt-5 pt-4 text-muted border-top">
-                    <div class="col-md-4">
-                        <i class="fas fa-edit mb-2 fa-2x" style="color: #667eea;"></i>
-                        <h5 class="fw-bold">Not Al</h5>
-                        <p class="small">Kitap özetlerini ve ders notlarını kaydet.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <i class="fas fa-comments mb-2 fa-2x" style="color: #667eea;"></i>
-                        <h5 class="fw-bold">Tartış</h5>
-                        <p class="small">Diğer kullanıcılarla kitaplar hakkında konuş.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <i class="fas fa-cloud mb-2 fa-2x" style="color: #667eea;"></i>
-                        <h5 class="fw-bold">Her Yerden Eriş</h5>
-                        <p class="small">Kütüphanen her an cebinde.</p>
+            <div class="col-lg-5 offset-lg-1">
+                
+                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-body p-5">
+                        
+                        <% if (user) { %>
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto text-white fw-bold" 
+                                         style="width: 80px; height: 80px; background-color: #667eea; font-size: 2rem;">
+                                        <%= user.username.charAt(0).toUpperCase() %>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold">Hoşgeldin, <%= user.username %>!</h3>
+                                <p class="text-muted">Kaldığın yerden devam et.</p>
+                                <a href="/books" class="btn btn-primary w-100 py-3 fw-bold shadow-sm" style="background-color: #667eea; border: none; border-radius: 10px;">
+                                    🚀 Kütüphaneme Git
+                                </a>
+                                <a href="/logout" class="btn btn-link text-muted mt-3 text-decoration-none small">Farklı hesaba geç</a>
+                            </div>
+
+                        <% } else { %>
+                            <h3 class="fw-bold text-center mb-4" style="color: #2d3748;">Giriş Yap</h3>
+
+                            <% if (error) { %>
+                                <div class="alert alert-danger text-center p-2 small border-0 bg-danger bg-opacity-10 text-danger fw-bold">
+                                    <i class="fas fa-exclamation-circle me-1"></i> <%= error %>
+                                </div>
+                            <% } %>
+
+                            <form action="/login" method="POST">
+                                <div class="mb-3">
+                                    <input type="text" name="username" class="form-control form-control-lg bg-light border-0" placeholder="Kullanıcı Adı" required>
+                                </div>
+                                <div class="mb-4">
+                                    <input type="password" name="password" class="form-control form-control-lg bg-light border-0" placeholder="Şifre" required>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm mb-3" style="background-color: #667eea; border: none; border-radius: 10px;">
+                                    Giriş Yap
+                                </button>
+                            </form>
+
+                            <div class="text-center pt-2 border-top">
+                                <p class="small text-muted mb-0">Hesabın yok mu?</p>
+                                <a href="/register" class="fw-bold text-decoration-none" style="color: #667eea;">Hemen Kayıt Ol</a>
+                            </div>
+                        <% } %>
+
                     </div>
                 </div>
 
             </div>
+
         </div>
     </div>
 </div>

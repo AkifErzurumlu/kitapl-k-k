@@ -57,12 +57,18 @@ const User = mongoose.model('User', new mongoose.Schema({
 // ============================================
 
 // --- ANA YÖNLENDİRME (Landing Page - GÜNCELLENDİ) ---
+
+// YENİSİ (BUNU YAPIŞTIR)
 app.get('/', async (req, res) => {
     let user = null;
+    
+    // Eğer kullanıcı zaten giriş yapmışsa bilgilerini çekiyoruz
     if (req.session.userId) {
-        user = await User.findById(req.session.userId); // Kullanıcıyı bul
+        user = await User.findById(req.session.userId);
     }
-    res.render('landing', { user: user }); // İsmiyle beraber gönder
+
+    // Sayfaya hem kullanıcıyı hem de boş bir hata değişkenini gönderiyoruz
+    res.render('landing', { user: user, error: null }); 
 });
 // --- GİRİŞ VE KAYIT İŞLEMLERİ (AUTH) ---
 
@@ -94,8 +100,12 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Çıkış Yapma
-app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
+// --- ÇIKIŞ YAPMA (Logout) ---
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/'); // DÜZELTME: Artık ana sayfaya (Landing) atıyor.
+    });
+});
 
 // --- ANA SAYFALAR ---
 
