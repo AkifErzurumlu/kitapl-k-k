@@ -1,18 +1,66 @@
 <%- include('layout') %>
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-10 text-center">
-        <div class="p-5 bg-white rounded-3 shadow-sm border">
-            <h1 class="display-4 fw-bold mb-3">Hoş Geldin!</h1>
-            <p class="fs-4 text-muted">Şu an kütüphanende tam <strong><%= totalBooks %></strong> kitap bulunuyor.</p>
-            
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
-                <a href="/list" class="btn btn-primary btn-lg px-4 gap-3">Kitapları Görüntüle</a>
-                <a href="/add" class="btn btn-outline-secondary btn-lg px-4">Yeni Kitap Ekle</a>
+<div class="container mt-4">
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="p-5 text-white rounded-3 shadow-lg" style="background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);">
+                <h1 class="display-4 fw-bold">
+                    Hoşgeldin, <%= user.username.charAt(0).toUpperCase() + user.username.slice(1) %>! 👋
+                </h1>
+                <p class="lead opacity-75">Kütüphanen seni bekliyor. Bugün ne okumak istersin?</p>
+                <a href="/add" class="btn btn-light text-primary fw-bold mt-3 px-4 shadow-sm" style="border-radius: 30px;">
+                    + Yeni Kitap Ekle
+                </a>
             </div>
         </div>
     </div>
+
+    <div class="row g-4 text-center">
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 py-3">
+                <div class="card-body">
+                    <i class="fas fa-book fa-3x mb-3" style="color: #667eea;"></i>
+                    <h5 class="text-muted text-uppercase small fw-bold">Toplam Kitap</h5>
+                    <h2 class="display-5 fw-bold text-dark"><%= user.books.length %></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 py-3">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                    <h5 class="text-muted text-uppercase small fw-bold">Bitirilenler</h5>
+                    <h2 class="display-5 fw-bold text-dark">
+                        <%= user.books.filter(book => book.isRead).length %>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 py-3">
+                <div class="card-body">
+                    <i class="fas fa-hourglass-half fa-3x mb-3 text-warning"></i>
+                    <h5 class="text-muted text-uppercase small fw-bold">Okunacaklar</h5>
+                    <h2 class="display-5 fw-bold text-dark">
+                        <%= user.books.filter(book => !book.isRead).length %>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="/list" class="btn btn-outline-primary btn-lg px-5" style="border-radius: 50px;">
+                📚 Tüm Kitaplarımı Gör
+            </a>
+        </div>
+    </div>
+
 </div>
 
-</div> </body>
-</html>
+</div> </body> </html>

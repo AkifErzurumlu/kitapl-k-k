@@ -56,12 +56,14 @@ const User = mongoose.model('User', new mongoose.Schema({
 //               ROTALAR (SAYFALAR)
 // ============================================
 
-// --- ANA YÖNLENDİRME ---
-app.get('/', (req, res) => {
-    if (req.session.userId) return res.redirect('/books');
-    res.redirect('/login');
+// --- ANA YÖNLENDİRME (Landing Page - GÜNCELLENDİ) ---
+app.get('/', async (req, res) => {
+    let user = null;
+    if (req.session.userId) {
+        user = await User.findById(req.session.userId); // Kullanıcıyı bul
+    }
+    res.render('landing', { user: user }); // İsmiyle beraber gönder
 });
-
 // --- GİRİŞ VE KAYIT İŞLEMLERİ (AUTH) ---
 
 // Giriş Sayfası
@@ -97,10 +99,10 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login'
 
 // --- ANA SAYFALAR ---
 
-// Hoş Geldin Ekranı
+// --- ANA DASHBOARD (Giriş Sonrası Ekran - GÜNCELLENDİ) ---
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    res.render('index', { totalBooks: user ? user.books.length : 0 }); 
+    res.render('index', { user: user }); // Kullanıcıyı sayfaya gönder
 });
 
 // Kitap Listesi Sayfası
