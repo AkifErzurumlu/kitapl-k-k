@@ -220,25 +220,35 @@ app.post('/delete-book/:id', requireLogin, async (req, res) => {
     }
     res.redirect('/list');
 });
-// --- C. OKUMA SAYFASI (GÜNCELLENDİ: YORUMLARI DA GETİRİR) ---
+// --- C. OKUMA SAYFASI (DÜZELTİLDİ: SENİN NOTUN ÖNCELİKLİ) ---
 app.get('/read/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const userBook = user.books.id(req.params.id);
 
     if (!userBook) return res.redirect('/list');
 
-    // Ortak kütüphaneden kitabı bul (Yorumlar orada!)
+    // Ortak kütüphaneden kitabı bul (Sadece yorumlar için lazım)
     const globalBook = await LibraryBook.findOne({ title: userBook.title });
 
-    // İçeriği ve Yorumları belirle
-    const contentToShow = globalBook ? globalBook.content : userBook.content;
-    const commentsToShow = globalBook ? globalBook.comments : []; // Yorum yoksa boş liste gönder
+    // 👇 İŞTE DÜZELTME BURADA 👇
+    // Eğer senin yazdığın bir içerik varsa (userBook.content) onu göster.
+    // Yoksa (veya boşsa) genel kütüphanedeki (globalBook.content) içeriği göster.
+    let contentToShow = "";
+    
+    if (userBook.content && userBook.content.trim() !== "") {
+        contentToShow = userBook.content;
+    } else if (globalBook && globalBook.content) {
+        contentToShow = globalBook.content;
+    }
+
+    // Yorumlar her zaman ortak havuzdan gelir
+    const commentsToShow = globalBook ? globalBook.comments : [];
 
     res.render('read-book', { 
         book: userBook, 
         content: contentToShow,
         comments: commentsToShow,
-        currentUser: user // <--- YENİ EKLEDİĞİMİZ KISIM (Senin kim olduğunu sayfaya bildiriyoruz)
+        currentUser: user 
     });
 });
 
