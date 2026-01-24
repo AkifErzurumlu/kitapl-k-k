@@ -166,26 +166,43 @@ app.get('/edit/:id', requireLogin, async (req, res) => {
 });
 
   
-// --- B. KİTAP DÜZENLEME (GÜNCELLENDİ: SADECE ADMIN HERKESİ ETKİLER) ---
+// --- B. KİTAP DÜZENLEME (ADMİN GÜCÜ EKLENDİ 💪) ---
 app.post('/edit/:id', requireLogin, async (req, res) => {
     const { title, author, imageUrl, content } = req.body;
     const user = await User.findById(req.session.userId);
     
-    // Kitabı bulup güncelliyoruz
+    // 1. Önce senin kendi listendeki kitabı güncelleyelim (Standart İşlem)
     const book = user.books.id(req.params.id);
+    if (!book) return res.redirect('/list'); // Kitap yoksa listeye dön
+
     book.title = title;
     book.author = author;
     book.content = content;
     
-    // Eğer resim linki boşsa varsayılanı korusun, doluysa güncellesin
     if (imageUrl && imageUrl.trim() !== "") {
         book.imageUrl = imageUrl;
     }
 
-    await user.save();
-    res.redirect('/list'); // Listeye dön
-});
+    await user.save(); // Senin profiline kaydettik.
 
+    // 2. 🔥 KRİTİK NOKTA: Eğer düzenleyen kişi SEN isen (Admin), bunu herkese yay!
+    if (user.username === ADMIN_USERNAME) {
+        console.log("👑 Admin düzenleme yaptı, ortak havuza işleniyor...");
+        
+        await LibraryBook.findOneAndUpdate(
+            { title: title }, // Kitap isminden bul
+            { 
+                title: title,
+                author: author,
+                content: content, // İşte senin yazdığın özet buraya gidiyor!
+                imageUrl: (imageUrl && imageUrl.trim() !== "") ? imageUrl : undefined 
+            },
+            { upsert: true, new: true } // Kitap havuzda yoksa oluştur, varsa güncelle
+        );
+    }
+
+    res.redirect('/read/' + req.params.id); 
+});
 // --- 3. OKUNDU / OKUNACAK İŞARETLE (POST) ---
 app.post('/mark-read/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
