@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
-// --- ADMIN AYARI (Burası Çok Önemli) ---
+// --- ADMIN AYARI  ---
 const ADMIN_USERNAME = "akiferz"; // BURAYA KENDİ KULLANICI ADINI YAZ (Tırnak içinde)
 
 // --- 1. MODEL TANIMLAMALARI ---
@@ -60,7 +60,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 // --- ANA YÖNLENDİRME (Landing Page - GÜNCELLENDİ) ---
 
-// YENİSİ (BUNU YAPIŞTIR)aaaaa
+
 app.get('/', async (req, res) => {
     let user = null;
     
@@ -111,7 +111,7 @@ app.get('/logout', (req, res) => {
 
 // --- ANA SAYFALAR ---
 
-// --- ANA DASHBOARD (Giriş Sonrası Ekran - GÜNCELLENDİ) ---
+// --- ANA DASHBOARD (Giriş Sonrası Ekran ) ---
 app.get('/books', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.render('index', { user: user }); // Kullanıcıyı sayfaya gönder
@@ -135,7 +135,7 @@ app.get('/add', requireLogin, async (req, res) => {
     }
 });
 
-// --- A. KİTAP EKLEME (GÜNCELLENDİ: RESİMLİ) ---
+// --- A. KİTAP EKLEME ---
 app.post('/add', requireLogin, async (req, res) => {
     const { title, author, imageUrl } = req.body; // imageUrl'yi de alıyoruz
     const user = await User.findById(req.session.userId);
@@ -153,7 +153,7 @@ app.post('/add', requireLogin, async (req, res) => {
     res.redirect('/list'); // Listeye dön
 });
 
-// --- KİTAP DÜZENLEME İŞLEMLERİ (UPDATE) ---
+// --- KİTAP DÜZENLEME İŞLEMLERİ ---
 
 // 1. Düzenleme Sayfasını Aç
 app.get('/edit/:id', requireLogin, async (req, res) => {
@@ -166,7 +166,7 @@ app.get('/edit/:id', requireLogin, async (req, res) => {
 });
 
   
-// --- B. KİTAP DÜZENLEME (ADMİN GÜCÜ EKLENDİ 💪) ---
+// --- B. KİTAP DÜZENLEME (ADMİN) ---
 app.post('/edit/:id', requireLogin, async (req, res) => {
     const { title, author, imageUrl, content } = req.body;
     const user = await User.findById(req.session.userId);
@@ -185,7 +185,7 @@ app.post('/edit/:id', requireLogin, async (req, res) => {
 
     await user.save(); // Senin profiline kaydettik.
 
-    // 2. 🔥 KRİTİK NOKTA: Eğer düzenleyen kişi SEN isen (Admin), bunu herkese yay!
+    // 2. Eğer düzenleyen kişi SEN isen (Admin), bunu herkese yay!
     if (user.username === ADMIN_USERNAME) {
         console.log("👑 Admin düzenleme yaptı, ortak havuza işleniyor...");
         
@@ -229,15 +229,17 @@ app.post('/toggle-read/:id', requireLogin, async (req, res) => {
 });
 
 // --- KİTAP SİLME İŞLEMİ (DELETE) ---
-app.post('/delete-book/:id', requireLogin, async (req, res) => {
+app.post('/delete/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (user) {
+        // Kitabı listeden filtreleyerek siliyoruz
         user.books = user.books.filter(b => b._id.toString() !== req.params.id);
         await user.save();
     }
     res.redirect('/list');
 });
-// --- C. OKUMA SAYFASI (DÜZELTİLDİ: SENİN NOTUN ÖNCELİKLİ) ---
+
+// --- C. OKUMA SAYFASI (ADMİN NOTUN ÖNCELİKLİ) ---
 app.get('/read/:id', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const userBook = user.books.id(req.params.id);
@@ -247,8 +249,8 @@ app.get('/read/:id', requireLogin, async (req, res) => {
     // Ortak kütüphaneden kitabı bul (Sadece yorumlar için lazım)
     const globalBook = await LibraryBook.findOne({ title: userBook.title });
 
-    // 👇 İŞTE DÜZELTME BURADA 👇
-    // Eğer senin yazdığın bir içerik varsa (userBook.content) onu göster.
+    
+    // Eğer ADMİNİN yazdığı bir içerik varsa (userBook.content) onu göster.
     // Yoksa (veya boşsa) genel kütüphanedeki (globalBook.content) içeriği göster.
     let contentToShow = "";
     
@@ -269,7 +271,7 @@ app.get('/read/:id', requireLogin, async (req, res) => {
     });
 });
 
-// --- D. YORUM YAPMA İŞLEMİ (YENİ ROTA) ---
+// --- D. YORUM YAPMA İŞLEMİ  ---
 app.post('/comment', requireLogin, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const { bookTitle, commentText, redirectId } = req.body; // Formdan gelen veriler
@@ -292,7 +294,7 @@ app.post('/comment', requireLogin, async (req, res) => {
     // Kullanıcıyı tekrar okuma sayfasına gönder
     res.redirect('/read/' + redirectId);
 });
-// --- E. YORUM SİLME İŞLEMİ (YENİ) ---
+// --- E. YORUM SİLME İŞLEMİ  ---
 app.post('/delete-comment', requireLogin, async (req, res) => {
     const { bookTitle, commentId, redirectId } = req.body;
     const user = await User.findById(req.session.userId);
